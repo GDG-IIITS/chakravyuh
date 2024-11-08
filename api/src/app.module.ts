@@ -13,6 +13,9 @@ import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/roles.guard';
 import { MailerModule } from './mailer/mailer.module';
 import { UsersModule } from './users/users.module';
+import { ChallengesModule } from './challenges/challenges.module';
+import { TeamsModule } from './teams/teams.module';
+import { ScoresModule } from './scores/scores.module';
 
 @Module({
   imports: [
@@ -33,6 +36,9 @@ import { UsersModule } from './users/users.module';
     }),
 
     ScheduleModule.forRoot(),
+    ChallengesModule,
+    ScoresModule,
+    TeamsModule,
   ],
   controllers: [AppController],
   providers: [
