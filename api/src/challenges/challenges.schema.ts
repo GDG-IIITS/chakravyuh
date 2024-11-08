@@ -61,7 +61,7 @@ export class Challenge {
   @Prop({ required: false })
   hints: Hint[];
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: SubmissionVerification })
   submissionVerification:
     | MonoFlagVerification
     | TeamwiseFlagVerification
