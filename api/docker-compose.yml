@@ -17,7 +17,7 @@ services:
     ports:
       - ${API_SERVER_BIND_PORT}:3000
     volumes:
-      - chakravyuh_backend:/app
+      - chakravyuh:/app
     networks:
       - chakravyuh-backend-network
 
