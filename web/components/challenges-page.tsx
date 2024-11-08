@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Search, MoreVertical, Edit, Trash2, Plus } from "lucide-react";
-import ChallengeEditor from "./add-challenge";
+import ChallengeEditor from "./challenge-editor";
 
 type Challenge = {
   id: string;
