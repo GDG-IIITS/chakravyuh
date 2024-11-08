@@ -7,6 +7,7 @@ import { Users, Trophy, Award, Users2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -17,7 +18,6 @@ import {
 const sidebarItems = [
   { name: "Users", icon: Users, href: "users" },
   { name: "Challenges", icon: Trophy, href: "challenges" },
-  { name: "Leaderboard", icon: Award, href: "leaderboard" },
   { name: "Teams", icon: Users2, href: "teams" },
 ];
 
@@ -26,11 +26,12 @@ export function AppSidebar() {
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar className="">
         <SidebarHeader>
-          <h2 className="text-xl font-bold">Chakravyuh</h2>
+          <h2 className="text-xl font-bold text-center">Ckvh Admin</h2>
         </SidebarHeader>
-        <SidebarContent>
+        <hr />
+        <SidebarContent className="px-4 py-4">
           <SidebarMenu>
             {sidebarItems.map((item) => (
               <SidebarMenuItem key={item.name}>
@@ -48,6 +49,13 @@ export function AppSidebar() {
             ))}
           </SidebarMenu>
         </SidebarContent>
+        <SidebarFooter>
+          <hr />
+          <div className="text-center text-sm text-muted-foreground">
+            <p>© 2024 Chakravyuh</p>
+            <p>GDGxIOTA</p>
+          </div>
+        </SidebarFooter>
       </Sidebar>
     </SidebarProvider>
   );

@@ -62,9 +62,7 @@ export function TeamsPageComponent() {
     );
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-6">Teams</h1>
-
+    <div className="container mx-auto py-4">
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-grow">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
