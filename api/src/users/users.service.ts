@@ -110,6 +110,7 @@ export class UsersService implements OnModuleInit {
       email: email,
       hashedPassword: await argon2.hash(password),
       role: 'superuser',
+      ug: 3,
     });
     console.log('Superuser created successfully!');
   }
