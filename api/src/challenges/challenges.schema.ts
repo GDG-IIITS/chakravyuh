@@ -40,6 +40,9 @@ export class Challenge {
   @Prop({ required: true })
   creator: string; // user id of creator
 
+  @Prop({ required: true, unique: true })
+  no: number; // challenge number
+
   @Prop({ required: true })
   title: string;
 
