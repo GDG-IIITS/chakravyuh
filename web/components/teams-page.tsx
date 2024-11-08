@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpDown, Search } from "lucide-react";
+import { ArrowUpDown, Search, Download } from "lucide-react";
 
 // Mock data for demonstration
 const mockTeams = [
@@ -82,10 +82,21 @@ export function TeamsPageComponent() {
       sortOrder === "asc" ? a.score - b.score : b.score - a.score
     );
 
+  const handleDownload = () => {
+    const teamIDs = mockTeams.map((team) => team.name).join("\n");
+    const blob = new Blob([teamIDs], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "team_ids.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="container mx-auto py-4">
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-grow">
+        <div className="relative flex-grow md:flex-grow-0 md:w-[300px]">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by team or member name"
@@ -106,6 +117,15 @@ export function TeamsPageComponent() {
             <SelectItem value="UG4">UG4</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex-grow"></div>
+        <Button
+          variant="primary"
+          className="bg-black text-white"
+          onClick={handleDownload}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Download TeamIDs
+        </Button>
       </div>
 
       <div className="rounded-md border">
