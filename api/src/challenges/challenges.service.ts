@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
+import { Challenge, ChallengeDocument } from './challenges.schema';
 
 @Injectable()
 export class ChallengesService {
-  create(createChallengeDto: CreateChallengeDto) {
-    return 'This action adds a new challenge';
+  constructor(
+    @InjectModel(Challenge.name)
+    private challengeModel: Model<ChallengeDocument>,
+  ) {}
+
+  async create(createChallengeDto: CreateChallengeDto): Promise<Challenge> {
+    const newChallenge = new this.challengeModel(createChallengeDto);
+    return await newChallenge.save();
   }
 
-  findAll() {
-    return `This action returns all challenges`;
+  async findAll(): Promise<Challenge[]> {
+    return this.challengeModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} challenge`;
+  async findOne(id: string): Promise<Challenge> {
+    const challenge = await this.challengeModel.findById(id).exec();
+    if (!challenge) {
+      throw new NotFoundException(`Challenge with ID ${id} not found`);
+    }
+    return challenge;
   }
 
-  update(id: number, updateChallengeDto: UpdateChallengeDto) {
-    return `This action updates a #${id} challenge`;
+  async update(
+    id: string,
+    updateChallengeDto: UpdateChallengeDto,
+  ): Promise<Challenge> {
+    const updatedChallenge = await this.challengeModel
+      .findByIdAndUpdate(id, updateChallengeDto, { new: true })
+      .exec();
+    if (!updatedChallenge) {
+      throw new NotFoundException(`Challenge with ID ${id} not found`);
+    }
+    return updatedChallenge;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} challenge`;
+  async remove(id: string): Promise<Challenge> {
+    const removedChallenge = await this.challengeModel
+      .findByIdAndDelete(id)
+      .exec();
+    if (!removedChallenge) {
+      throw new NotFoundException(`Challenge with ID ${id} not found`);
+    }
+    return removedChallenge;
   }
 }

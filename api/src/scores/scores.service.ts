@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
+import { Score, ScoreDocument } from './scores.schema';
 
 @Injectable()
 export class ScoresService {
-  create(createScoreDto: CreateScoreDto) {
-    return 'This action adds a new score';
+  constructor(
+    @InjectModel(Score.name) private scoreModel: Model<ScoreDocument>,
+  ) {}
+
+  async create(createScoreDto: CreateScoreDto): Promise<Score> {
+    const newScore = new this.scoreModel(createScoreDto);
+    return newScore.save();
   }
 
-  findAll() {
-    return `This action returns all scores`;
+  async findAll(): Promise<Score[]> {
+    return this.scoreModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} score`;
+  async findOne(id: string): Promise<Score> {
+    const score = await this.scoreModel.findById(id).exec();
+    if (!score) {
+      throw new NotFoundException(`Score with ID ${id} not found`);
+    }
+    return score;
   }
 
-  update(id: number, updateScoreDto: UpdateScoreDto) {
-    return `This action updates a #${id} score`;
+  async update(id: string, updateScoreDto: UpdateScoreDto): Promise<Score> {
+    const updatedScore = await this.scoreModel
+      .findByIdAndUpdate(id, updateScoreDto, { new: true })
+      .exec();
+    if (!updatedScore) {
+      throw new NotFoundException(`Score with ID ${id} not found`);
+    }
+    return updatedScore;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} score`;
+  async remove(id: string): Promise<Score> {
+    const removedScore = await this.scoreModel.findByIdAndDelete(id).exec();
+    if (!removedScore) {
+      throw new NotFoundException(`Score with ID ${id} not found`);
+    }
+    return removedScore;
   }
 }

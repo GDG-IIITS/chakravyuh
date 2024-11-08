@@ -55,6 +55,9 @@ export class User {
 
   @Prop({ required: false })
   emailConfirmedAt: Date;
+
+  @Prop({ required: false })
+  team: string; // id of the team the user is part of
 }
 
 export type UserDocument = HydratedDocument<User>;

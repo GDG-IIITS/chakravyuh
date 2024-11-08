@@ -80,14 +80,6 @@ export class UsersService implements OnModuleInit {
     return await this.usersModel.findOne({ email: email });
   }
 
-  async findByGitHubId(id: string) {
-    return await this.usersModel.findOne({ githubId: id });
-  }
-
-  async findByGoogleId(id: string) {
-    return await this.usersModel.findOne({ googleId: id });
-  }
-
   async checkEmailExists(email: string) {
     return (await this.usersModel.countDocuments({ email: email }).exec()) > 0;
   }
