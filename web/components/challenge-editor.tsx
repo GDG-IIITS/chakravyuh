@@ -48,19 +48,23 @@ export default function ChallengeEditor() {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
-          <div className="min-h-[400px]">
+          <div className="min-h-[300px]">
             {currentPage === 1 && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="title">Challenge Title</Label>
+                <div className="mb-2">
+                  <Label className="ml-1" htmlFor="title">
+                    Title
+                  </Label>
                   <Input
                     id="title"
                     placeholder="Enter challenge title"
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="challengeNumber">Challenge Number</Label>
+                <div className="">
+                  <Label className="ml-1" htmlFor="challengeNumber">
+                    Number
+                  </Label>
                   <Input
                     id="challengeNumber"
                     type="number"
@@ -68,16 +72,20 @@ export default function ChallengeEditor() {
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="challengeSummary">Challenge Summary</Label>
+                <div className="">
+                  <Label className="ml-1" htmlFor="challengeSummary">
+                    Summary
+                  </Label>
                   <Textarea
                     id="challengeSummary"
                     placeholder="Enter challenge summary"
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="maxScore">Max Score</Label>
+                <div className="">
+                  <Label className="ml-1" htmlFor="maxScore">
+                    Max Score
+                  </Label>
                   <Input
                     id="maxScore"
                     type="number"
@@ -89,22 +97,29 @@ export default function ChallengeEditor() {
             )}
             {currentPage === 2 && (
               <>
-                <div className="space-y-2 h-3/4">
-                  <Label htmlFor="description">Description</Label>
+                <div className=" h-3/4">
+                  <Label className="ml-1" htmlFor="description">
+                    Description
+                  </Label>
                   <Textarea
                     id="description"
+                    rows={10}
                     placeholder="Enter challenge description"
                     required
                     className="h-full"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startTime">Start Time</Label>
+                  <div className="">
+                    <Label className="ml-1" htmlFor="startTime">
+                      Start Time
+                    </Label>
                     <Input id="startTime" type="datetime-local" required />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="endTime">End Time</Label>
+                  <div className="">
+                    <Label className="ml-1" htmlFor="endTime">
+                      End Time
+                    </Label>
                     <Input id="endTime" type="datetime-local" required />
                   </div>
                 </div>
@@ -112,8 +127,10 @@ export default function ChallengeEditor() {
             )}
             {currentPage === 3 && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="verificationMode">Verification Mode</Label>
+                <div className="">
+                  <Label className="ml-1" htmlFor="verificationMode">
+                    Verification Mode
+                  </Label>
                   <Select
                     value={verificationMode}
                     onValueChange={setVerificationMode}
@@ -129,20 +146,31 @@ export default function ChallengeEditor() {
                   </Select>
                 </div>
                 {verificationMode === "Mono" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="flag">Flag</Label>
+                  <div className="">
+                    <Label className="ml-1" htmlFor="flag">
+                      Flag
+                    </Label>
                     <Input id="flag" placeholder="Enter flag" required />
                   </div>
                 )}
                 {verificationMode === "Unique" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="csv">Paste CSV Text</Label>
-                    <Textarea id="csv" placeholder="Paste CSV text" required />
+                  <div className="">
+                    <Label className="ml-1" htmlFor="csv">
+                      Paste CSV Text
+                    </Label>
+                    <Textarea
+                      id="csv"
+                      rows={10}
+                      placeholder="Paste CSV text"
+                      required
+                    />
                   </div>
                 )}
                 {verificationMode === "Custom" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="apiKey">API Key</Label>
+                  <div className="">
+                    <Label className="ml-1" htmlFor="apiKey">
+                      API Key
+                    </Label>
                     <div className="flex items-center space-x-2">
                       <Input
                         id="apiKey"
@@ -175,12 +203,19 @@ export default function ChallengeEditor() {
         </CardContent>
         <CardFooter className="flex justify-between">
           {currentPage > 1 && (
-            <Button type="button" onClick={() => setCurrentPage(currentPage - 1)}>
+            <Button
+              type="button"
+              onClick={() => setCurrentPage(currentPage - 1)}
+            >
               Previous
             </Button>
           )}
           {currentPage < 3 && (
-            <Button type="button" onClick={() => setCurrentPage(currentPage + 1)}>
+            <Button
+              type="button"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              className={currentPage === 1 ? "ml-auto" : ""}
+            >
               Next
             </Button>
           )}
