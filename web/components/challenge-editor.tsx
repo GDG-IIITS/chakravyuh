@@ -1,10 +1,4 @@
-"use client";
-
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardHeader,
@@ -13,71 +7,141 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export default function ChallengeEditor({ challenge }: { challenge: any }) {
+export default function ChallengeEditor() {
+  const [verificationMode, setVerificationMode] = useState("Mono");
+  const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setIsLoading(true);
-
-    // Here you would typically send the form data to your API
-    // For this example, we'll just simulate an API call with a timeout
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsLoading(false);
-    toast({
-      title: "Challenge Created",
-      description: "Your new challenge has been successfully added.",
-    });
+    // Handle form submission
   };
 
   return (
-    <>
-      <Card className="w-full max-w-2xl mx-auto py">
-        <CardHeader>
-          <CardTitle>Add New Challenge</CardTitle>
-          <CardDescription>
-            Create a new digital treasure hunt challenge
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+    <Card className="w-full max-w-2xl mx-auto py">
+      <CardHeader>
+        <CardTitle>Add New Challenge</CardTitle>
+        <CardDescription>
+          Create a new digital treasure hunt challenge
+        </CardDescription>
+      </CardHeader>
+      <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Challenge Title</Label>
+            <Input id="title" placeholder="Enter challenge title" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="challengeNumber">Challenge Number</Label>
+            <Input
+              id="challengeNumber"
+              type="number"
+              placeholder="Enter challenge number"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="challengeSummary">Challenge Summary</Label>
+            <Textarea
+              id="challengeSummary"
+              placeholder="Enter challenge summary"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              placeholder="Enter challenge description"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="verificationMode">Verification Mode</Label>
+            <Select
+              value={verificationMode}
+              onValueChange={setVerificationMode}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select verification mode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Mono">Mono</SelectItem>
+                <SelectItem value="Unique">Unique</SelectItem>
+                <SelectItem value="Custom">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {verificationMode === "Mono" && (
             <div className="space-y-2">
-              <Label htmlFor="title">Challenge Title</Label>
-              <Input id="title" placeholder="Enter challenge title" required />
+              <Label htmlFor="flag">Flag</Label>
+              <Input id="flag" placeholder="Enter flag" required />
             </div>
+          )}
+          {verificationMode === "Unique" && (
+            <div className="space-y-2">
+              <Label htmlFor="csv">Paste CSV Text</Label>
+              <Textarea id="csv" placeholder="Paste CSV text" required />
+            </div>
+          )}
+          {verificationMode === "Custom" && (
             <div className="space-y-2">
               <Label htmlFor="apiKey">API Key</Label>
-              <Input id="apiKey" placeholder="Enter API key" required />
+              <div className="flex items-center space-x-2">
+                <Input
+                  id="apiKey"
+                  type={isApiKeyVisible ? "text" : "password"}
+                  placeholder="Enter API key"
+                  required
+                />
+                <Button
+                  type="button"
+                  onClick={() => setIsApiKeyVisible(!isApiKeyVisible)}
+                >
+                  {isApiKeyVisible ? "Hide" : "Show"}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() =>
+                    navigator.clipboard.writeText(
+                      document.getElementById("apiKey").value
+                    )
+                  }
+                >
+                  Copy
+                </Button>
+              </div>
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startTime">Start Time</Label>
+              <Input id="startTime" type="datetime-local" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Enter challenge description"
-                required
-              />
+              <Label htmlFor="endTime">End Time</Label>
+              <Input id="endTime" type="datetime-local" required />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="startTime">Start Time</Label>
-                <Input id="startTime" type="datetime-local" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endTime">End Time</Label>
-                <Input id="endTime" type="datetime-local" required />
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Challenge"}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create Challenge"}
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
   );
 }
