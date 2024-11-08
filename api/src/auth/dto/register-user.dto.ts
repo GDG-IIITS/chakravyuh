@@ -13,7 +13,4 @@ export class RegisterUserDto {
   @IsNotEmpty()
   @ApiProperty({ default: 'Ckvh Team' })
   fullName: string;
-
-  @ApiProperty({ default: 'REFER24' })
-  referrer?: string;
 }
