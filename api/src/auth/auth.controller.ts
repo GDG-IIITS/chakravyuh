@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { AllowInactive } from './allowInactive.decorator';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -18,7 +19,6 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { VerifyResetPasswordDto } from './dto/verify-reset-password.dto';
 import { lucia } from './lucia';
 import { Public } from './public.decorator';
-import { AllowInactive } from './allowInactive.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -47,6 +47,7 @@ export class AuthController {
     return user;
   }
 
+  @AllowInactive()
   @Get('/me')
   async me(@Req() req: Request) {
     return req['user'];

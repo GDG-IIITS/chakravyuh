@@ -173,7 +173,7 @@ export class AuthService {
     const verificationUrl = `${frontendBase}?token=${token.token}`;
     await this.mailerService.sendMail({
       recipients: [user.email],
-      subject: 'Email verification for chakravyuh Account',
+      subject: 'Email Verification for Chakravyuh Account',
       text: `Click on the link to verify your email: ${verificationUrl}`,
       html: `Click on the link to verify your email: <a href="${verificationUrl}">${verificationUrl}</a>`,
     });
