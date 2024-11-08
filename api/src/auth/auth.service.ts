@@ -198,6 +198,7 @@ export class AuthService {
       return { message: 'Email already verified' };
     }
     user.emailVerified = true;
+    user.isActive = true;
     user.emailConfirmedAt = new Date();
     await user.save();
     return { message: 'Email verified successfully' };

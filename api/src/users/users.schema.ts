@@ -47,7 +47,7 @@ export class User {
   @Prop({ required: true, default: Date })
   lastLogin: Date;
 
-  @Prop({ required: true, default: true })
+  @Prop({ required: true, default: false })
   isActive: boolean;
 
   @Prop({ required: false })
