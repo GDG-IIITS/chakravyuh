@@ -13,7 +13,7 @@ import { UsersService } from '../users.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles.decorator';
 import { IUpdateUserDto } from '../dto/update-user.dto';
-import { URoles } from '../users.schema';
+import { URoles, UserDocument } from '../users.schema';
 
 @ApiTags('users')
 @Controller('users')
@@ -23,25 +23,28 @@ export class UsersController {
 
   @Post()
   @ApiOperation({ summary: '[ADMIN] Create a user' })
-  async create(@Body() createUserDto: ICreateUserDto) {
+  async create(@Body() createUserDto: ICreateUserDto): Promise<UserDocument> {
     return this.usersService.icreate(createUserDto);
   }
 
   @Get()
   @ApiOperation({ summary: '[ADMIN] Get all users' })
-  async findAll() {
+  async findAll(): Promise<UserDocument[]> {
     return this.usersService.findAll();
   }
 
   @Patch(':id')
   @ApiOperation({ summary: '[ADMIN] Update a user' })
-  update(@Param('id') id: string, @Body() updateUserDto: IUpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: IUpdateUserDto,
+  ): Promise<UserDocument> {
     return this.usersService.updateUser(id, updateUserDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: '[ADMIN] Delete a user' })
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<UserDocument> {
     return this.usersService.removeUser(id);
   }
 }
