@@ -22,6 +22,9 @@ export class User {
   @Prop({ required: true, index: true, unique: true })
   email: string;
 
+  @Prop({ required: true, index: true })
+  ug: number;
+
   @Prop({ required: true })
   fullName: string;
 

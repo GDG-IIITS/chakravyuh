@@ -3,8 +3,7 @@ export class ICreateUserDto {
   hashedPassword?: string;
   fullName: string;
   role?: string;
-  githubId?: string;
-  googleId?: string;
+  ug: number;
   emailVerified?: boolean;
 }
 
