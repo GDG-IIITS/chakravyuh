@@ -1,3 +1,3 @@
 export default function Page() {
-  return <h1>Admin Page</h1>;
+  return <h1>Welcome to Chakravyuh Admin!</h1>;
 }
