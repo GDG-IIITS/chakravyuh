@@ -22,17 +22,46 @@ import { ArrowUpDown, Search } from "lucide-react";
 
 // Mock data for demonstration
 const mockTeams = [
-  { name: "Team A", ug: "UG1", member1: "John", member2: "Jane", score: 100 },
-  { name: "Team B", ug: "UG2", member1: "Alice", member2: "Bob", score: 90 },
+  {
+    name: "Team A",
+    ug: "UG1",
+    member1: "John",
+    member2: "Jane",
+    lead: "John",
+    score: 100,
+  },
+  {
+    name: "Team B",
+    ug: "UG2",
+    member1: "Alice",
+    member2: "Bob",
+    lead: "Alice",
+    score: 90,
+  },
   {
     name: "Team C",
     ug: "UG1",
     member1: "Charlie",
     member2: "David",
+    lead: "Charlie",
     score: 110,
   },
-  { name: "Team D", ug: "UG3", member1: "Eve", member2: "Frank", score: 95 },
-  { name: "Team E", ug: "UG2", member1: "Grace", member2: "Henry", score: 105 },
+  {
+    name: "Team D",
+    ug: "UG3",
+    member1: "Eve",
+    member2: "Frank",
+    lead: "Eve",
+    score: 95,
+  },
+  {
+    name: "Team E",
+    ug: "UG2",
+    member1: "Grace",
+    member2: "Henry",
+    lead: "Grace",
+    score: 105,
+  },
 ];
 
 export function TeamsPageComponent() {
@@ -45,7 +74,8 @@ export function TeamsPageComponent() {
       (team) =>
         (team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           team.member1.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          team.member2.toLowerCase().includes(searchTerm.toLowerCase())) &&
+          team.member2.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          team.lead.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (selectedUG === "" || team.ug === selectedUG)
     )
     .sort((a, b) =>
@@ -84,6 +114,7 @@ export function TeamsPageComponent() {
             <TableRow>
               <TableHead>Team Name</TableHead>
               <TableHead>UG</TableHead>
+              <TableHead>Lead</TableHead>
               <TableHead>Member 1</TableHead>
               <TableHead>Member 2</TableHead>
               <TableHead>
@@ -107,6 +138,7 @@ export function TeamsPageComponent() {
               <TableRow key={team.name}>
                 <TableCell className="font-medium">{team.name}</TableCell>
                 <TableCell>{team.ug}</TableCell>
+                <TableCell>{team.lead}</TableCell>
                 <TableCell>{team.member1}</TableCell>
                 <TableCell>{team.member2}</TableCell>
                 <TableCell>{team.score}</TableCell>
