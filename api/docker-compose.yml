@@ -1,0 +1,50 @@
+services:
+  chakravyuh:
+    depends_on:
+      - redis
+      - mongo
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chakravyuh-backend
+    env_file:
+      - .env
+    environment:
+      - MONGO_CON_STR=mongodb://${MONGO_UNAME}:${MONGO_PASS}@mongo:27017/chakravyuh?authSource=admin
+      - REDIS_HOST=redis
+      - API_SERVER_BIND_PORT=3000
+    ports:
+      - ${API_SERVER_BIND_PORT}:3000
+    volumes:
+      - chakravyuh_backend:/app
+    networks:
+      - chakravyuh-backend-network
+
+  redis:
+    image: 'redis:alpine'
+    command: redis-server
+    networks:
+      - chakravyuh-backend-network
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_UNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+      - MONGO_BIND_PORT=27017
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - ${MONGO_BIND_PORT}:27017
+    networks:
+      - chakravyuh-backend-network
+
+volumes:
+  mongo_data:
+  chakravyuh:
+
+networks:
+  chakravyuh-backend-network:

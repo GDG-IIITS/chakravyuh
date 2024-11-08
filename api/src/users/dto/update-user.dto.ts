@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateUserDto } from './create-user.dto';
+import { PartialType } from '@nestjs/swagger';
+import { AdminCreateUserDto, ICreateUserDto } from './create-user.dto';
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class IUpdateUserDto extends PartialType(ICreateUserDto) {
+  emailVerified?: boolean;
+  emailConfirmedAt?: Date;
+}
+
+export class AdminUpdateUserDto extends PartialType(AdminCreateUserDto) {}

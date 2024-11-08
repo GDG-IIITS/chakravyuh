@@ -1,15 +1,50 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { join } from 'path';
+import { appConfig } from './app.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
+import { AuthGuard } from './auth/auth.guard';
 import { AuthModule } from './auth/auth.module';
-import { TeamsModule } from './teams/teams.module';
-import { ChallengesModule } from './challenges/challenges.module';
-import { ScoresModule } from './scores/scores.module';
+import { RolesGuard } from './auth/roles.guard';
+import { MailerModule } from './mailer/mailer.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, TeamsModule, ChallengesModule, ScoresModule],
+  imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/public',
+    }),
+    MongooseModule.forRoot(appConfig.mongoConStr),
+    AuthModule,
+    MailerModule,
+
+    UsersModule,
+
+    PrometheusModule.register({
+      defaultLabels: {
+        app: 'nestjs-backend',
+      },
+    }),
+
+    ScheduleModule.forRoot(),
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}
