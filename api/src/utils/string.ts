@@ -12,3 +12,11 @@ export function splitRoomSessionId(roomSessionId: string) {
   }
   return parts;
 }
+
+export function getYear(email: string): string {
+  return email.split('@')[0].slice(-2);
+}
+
+export function getUg(year: string): number {
+  return 4 - (parseInt(year) - 21);
+}

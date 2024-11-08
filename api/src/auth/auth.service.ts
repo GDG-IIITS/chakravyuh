@@ -15,6 +15,7 @@ import { appConfig } from 'src/app.config';
 import { MailerService } from 'src/mailer/mailer.service';
 import { UserDocument } from 'src/users/users.schema';
 import { UsersService } from 'src/users/users.service';
+import { getUg, getYear } from 'src/utils/string';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -53,11 +54,21 @@ export class AuthService {
     if (await this.usersService.checkEmailExists(registerUserDto.email)) {
       throw new ForbiddenException('User with this email already exists');
     }
+
+    if (!registerUserDto.email.endsWith('@iiits.in')) {
+      throw new ForbiddenException(
+        'Only @iiits.in email addresses are allowed',
+      );
+    }
+
+    const year = getYear(registerUserDto.email);
+    const ug = getUg(year);
     const hashedPassword = await argon2.hash(registerUserDto.password);
     return await this.usersService.icreate({
       email: registerUserDto.email,
       fullName: registerUserDto.fullName,
       hashedPassword: hashedPassword,
+      ug: ug,
     });
   }
 

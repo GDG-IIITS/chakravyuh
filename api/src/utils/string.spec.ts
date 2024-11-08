@@ -1,4 +1,4 @@
-import { splitRoomSessionId, toUname } from './string';
+import { getUg, getYear, toUname } from './string';
 
 describe('toUname', () => {
   test('should convert uppercase letters to lowercase', () => {
@@ -82,17 +82,42 @@ describe('toUname', () => {
   });
 });
 
-describe('splitRoomSessionId', () => {
-  it('should return the room id and session id when the input has a hyphen', async () => {
-    const roomSessionId = 'room-session';
-    const [roomId, sessionId] = await splitRoomSessionId(roomSessionId);
-    expect(roomId).toBe('room');
-    expect(sessionId).toBe('session');
+describe('getYear', () => {
+  test('should return the last two characters before the "@" symbol', () => {
+    expect(getYear('user@example.com')).toBe('er');
   });
-  it('should return the room id and null when the input does not have a hyphen', async () => {
-    const roomSessionId = 'room';
-    const [roomId, sessionId] = splitRoomSessionId(roomSessionId);
-    expect(roomId).toBe('room');
-    expect(sessionId).toBeNull();
+
+  test('should return the last two characters of a short username', () => {
+    expect(getYear('ab@example.com')).toBe('ab');
+  });
+
+  test('should return the last two characters of a short username', () => {
+    expect(getYear('aahnik.d22@iiits.in')).toBe('22');
+  });
+
+  test('should return the last two characters of a short username', () => {
+    expect(getYear('bishwajeet.s22@iiits.in')).toBe('22');
+  });
+
+  test('should return the last two characters of a short username', () => {
+    expect(getYear('random.rn24@iiits.in')).toBe('24');
+  });
+});
+
+describe('getUg', () => {
+  test('should return the year difference from 2021', () => {
+    expect(getUg('21')).toBe(4);
+  });
+
+  test('should return the year difference from 2021', () => {
+    expect(getUg('22')).toBe(3);
+  });
+
+  test('should return the year difference from 2021', () => {
+    expect(getUg('23')).toBe(2);
+  });
+
+  test('should return the year difference from 2021', () => {
+    expect(getUg('24')).toBe(1);
   });
 });
