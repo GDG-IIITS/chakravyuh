@@ -9,6 +9,7 @@ import { Request } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { lucia } from './lucia';
 import { IS_PUBLIC_KEY } from './public.decorator';
+import { ALLOW_INACTIVE_KEY } from './allowInactive.decorator';
 
 const EXTRA_PUBLIC_ROUTES = ['/metrics'];
 @Injectable()
@@ -32,6 +33,10 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
+    const allowInactive = this.reflector.getAllAndOverride<boolean>(
+      ALLOW_INACTIVE_KEY,
+      [context.getHandler(), context.getClass()],
+    );
     const url = context.switchToHttp().getRequest().url;
     if (isPublic || EXTRA_PUBLIC_ROUTES.includes(url)) {
       return true;
@@ -42,6 +47,6 @@ export class AuthGuard implements CanActivate {
     );
     request['user'] = user;
     request['session'] = session;
-    return request['user'].isActive;
+    return request['user'].isActive || allowInactive;
   }
 }

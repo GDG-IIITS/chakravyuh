@@ -18,6 +18,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { VerifyResetPasswordDto } from './dto/verify-reset-password.dto';
 import { lucia } from './lucia';
 import { Public } from './public.decorator';
+import { AllowInactive } from './allowInactive.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -63,6 +64,7 @@ export class AuthController {
     return await this.authService.resetPassword(verifyResetPasswordDto);
   }
 
+  @AllowInactive()
   @Post('/verify-email/init')
   async initEmailVerification(
     @Req() req: Request,
@@ -74,6 +76,7 @@ export class AuthController {
     );
   }
 
+  @AllowInactive()
   @Public()
   @Post('/verify-email/:token')
   async verifyEmail(@Param('token') token: string) {
