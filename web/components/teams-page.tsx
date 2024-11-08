@@ -76,14 +76,6 @@ export function TeamsPageComponent() {
             <SelectItem value="UG4">UG4</SelectItem>
           </SelectContent>
         </Select>
-        <Button
-          variant="outline"
-          className="w-full md:w-auto"
-          onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-        >
-          Sort by Score
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
       </div>
 
       <div className="rounded-md border">
@@ -94,7 +86,20 @@ export function TeamsPageComponent() {
               <TableHead>UG</TableHead>
               <TableHead>Member 1</TableHead>
               <TableHead>Member 2</TableHead>
-              <TableHead>Current Score</TableHead>
+              <TableHead>
+                <div className="flex items-center">
+                  Current Score
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                    }
+                  >
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
