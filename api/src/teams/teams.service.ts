@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTeamDto } from './dto/create-team.dto';
-import { UpdateTeamDto } from './dto/update-team.dto';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Team, TeamDocument } from './teams.schema';
 import { Model } from 'mongoose';
+import { appConfig } from 'src/app.config';
 import { UsersService } from 'src/users/users.service';
+import { CreateTeamDto } from './dto/create-team.dto';
+import { JoinTeamDto } from './dto/join-team.dto';
+import { UpdateTeamDto } from './dto/update-team.dto';
+import { Team, TeamDocument } from './teams.schema';
 
 @Injectable()
 export class TeamsService {
@@ -14,11 +20,51 @@ export class TeamsService {
   ) {}
 
   async create(userId: string, createTeamDto: CreateTeamDto): Promise<Team> {
-    const newTeam = new this.teamsModel({ ...createTeamDto, lead: userId });
+    const lead = await this.userService.findById(userId);
+    const newTeam = new this.teamsModel({
+      ...createTeamDto,
+      lead: userId,
+      ug: lead.ug,
+    });
     const team = await newTeam.save();
     const user = await this.userService.findById(userId);
     user.team = newTeam.id;
     await user.save();
+    return team;
+  }
+
+  async join(userId: string, joinTeamDto: JoinTeamDto): Promise<Team> {
+    const team = await this.teamsModel.findOne({ joinCode: joinTeamDto.code });
+    if (!team) {
+      throw new ForbiddenException(`Invalid JoinCode : ${joinCode}`);
+    }
+    const user = await this.userService.findById(userId);
+
+    if (user.team) {
+      throw new ForbiddenException('User already in a team');
+    }
+
+    if (team.members.length >= appConfig.maxTeamSize - 1) {
+      throw new ForbiddenException('Team is full');
+    }
+
+    if (user.ug !== team.ug) {
+      throw new ForbiddenException('User not in same ug');
+    }
+
+    if (team.members.includes(userId)) {
+      throw new ForbiddenException('User already in team');
+    }
+
+    if (team.lead === userId) {
+      throw new ForbiddenException('Lead can not join as a member');
+    }
+
+    user.team = team.id;
+    await user.save();
+
+    team.members.push(userId);
+    await team.save();
     return team;
   }
 

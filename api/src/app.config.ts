@@ -46,4 +46,6 @@ export const appConfig = {
     email: fromEnv('SUPERUSER_EMAIL', defaults.superUser.email),
     pass: fromEnv('SUPERUSER_PASS', defaults.superUser.pass),
   },
+
+  maxTeamSize: 3,
 };

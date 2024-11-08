@@ -25,7 +25,7 @@ export class Team {
   @Prop({ required: true, default: generateJoinCode })
   joinCode: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: 0 })
   score: number;
 
   @Prop({ required: true, default: Date.now })

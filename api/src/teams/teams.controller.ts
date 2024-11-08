@@ -1,19 +1,20 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
   Patch,
+  Post,
   Req,
 } from '@nestjs/common';
-import { TeamsService } from './teams.service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import { CreateTeamDto } from './dto/create-team.dto';
+import { JoinTeamDto } from './dto/join-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { Team } from './teams.schema';
-import { Request } from 'express';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { TeamsService } from './teams.service';
 @ApiTags('teams')
 @Controller('teams')
 export class TeamsController {
@@ -26,6 +27,15 @@ export class TeamsController {
     @Body() createTeamDto: CreateTeamDto,
   ): Promise<Team> {
     return this.teamsService.create(req['user'].id, createTeamDto);
+  }
+
+  @Post('/join')
+  @ApiOperation({ summary: 'Join a team' })
+  async join(
+    @Req() req: Request,
+    @Body() joinTeamDto: JoinTeamDto,
+  ): Promise<Team> {
+    return this.teamsService.join(req['user'].id, joinTeamDto);
   }
 
   @Get()
