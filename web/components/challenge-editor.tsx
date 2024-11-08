@@ -19,17 +19,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import { Plus, Trash } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export default function ChallengeEditor() {
   const [verificationMode, setVerificationMode] = useState("Mono");
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 3;
+  const [hints, setHints] = useState([{ text: "", show: false }]);
+  const totalPages = 4;
 
   const handleSubmit = (event) => {
     event.preventDefault();
     // Handle form submission
+  };
+
+  const addHint = () => {
+    setHints([...hints, { text: "", show: false }]);
+  };
+
+  const deleteHint = (index) => {
+    setHints(hints.filter((_, i) => i !== index));
+  };
+
+  const updateHint = (index, newHint) => {
+    const newHints = [...hints];
+    newHints[index] = newHint;
+    setHints(newHints);
   };
 
   return (
@@ -199,6 +216,52 @@ export default function ChallengeEditor() {
                 )}
               </>
             )}
+            {currentPage === 4 && (
+              <>
+                <div className="mb-2">
+                  <Label className="ml-1">Hints</Label>
+                  {hints.map((hint, index) => (
+                    <div
+                      key={index}
+                      className="mb-2 flex items-center space-x-2"
+                    >
+                      <Textarea
+                        value={hint.text}
+                        onChange={(e) =>
+                          updateHint(index, { ...hint, text: e.target.value })
+                        }
+                        placeholder="Enter hint text"
+                        required
+                      />
+
+                      <label className="flex items-center space-x-2">
+                        <Switch
+                          checked={hint.show}
+                          onCheckedChange={(checked) =>
+                            updateHint(index, { ...hint, show: checked })
+                          }
+                        />
+                      </label>
+                      <Button
+                        type="button"
+                        onClick={() => deleteHint(index)}
+                        className="p-2 bg-white hover:bg-gray-100"
+                      >
+                        <Trash size={16} className="text-black" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    onClick={addHint}
+                    className="flex items-center space-x-2"
+                  >
+                    <Plus size={16} />
+                    <span>Add</span>
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
@@ -210,7 +273,7 @@ export default function ChallengeEditor() {
               Previous
             </Button>
           )}
-          {currentPage < 3 && (
+          {currentPage < 4 && (
             <Button
               type="button"
               onClick={() => setCurrentPage(currentPage + 1)}
@@ -219,7 +282,7 @@ export default function ChallengeEditor() {
               Next
             </Button>
           )}
-          {currentPage === 3 && (
+          {currentPage === 4 && (
             <Button type="submit" className="ml-auto" disabled={isLoading}>
               {isLoading ? "Creating..." : "Create Challenge"}
             </Button>
