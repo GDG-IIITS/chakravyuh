@@ -29,10 +29,10 @@ export class ScoresController {
   @Public()
   async setScoreViaKey(
     @Body() createScoreDto: CreateScoreDto,
-    @Headers('Chakravyuh Challenge Key') challengeScopedApiKey: string,
+    @Headers('Authorization') apiKey: string,
   ): Promise<Score> {
-    const challengeApiKey = await this.
-    return this.scoresService.create(createScoreDto);
+    console.log(apiKey);
+    return this.scoresService.createViaApiKey(apiKey, createScoreDto);
   }
 
   @Get()
