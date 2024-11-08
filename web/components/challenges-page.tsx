@@ -80,21 +80,6 @@ export function ChallengesPage() {
     challenge.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddOrEditChallenge = (challenge: Challenge) => {
-    if (selectedChallenge) {
-      setChallenges(
-        challenges.map((c) => (c.id === challenge.id ? challenge : c))
-      );
-    } else {
-      setChallenges([
-        ...challenges,
-        { ...challenge, id: Date.now().toString() },
-      ]);
-    }
-    setIsAddModalOpen(false);
-    setSelectedChallenge(null);
-  };
-
   const handleDeleteChallenge = () => {
     if (selectedChallenge) {
       setChallenges(challenges.filter((c) => c.id !== selectedChallenge.id));
