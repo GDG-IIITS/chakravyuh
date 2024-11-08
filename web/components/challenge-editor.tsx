@@ -25,7 +25,7 @@ export default function ChallengeEditor() {
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 2;
+  const totalPages = 3;
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -38,7 +38,7 @@ export default function ChallengeEditor() {
         <div className="mb-4">
           <Progress
             value={(currentPage / totalPages) * 100}
-            className="w-ful"
+            className="w-full"
           />
         </div>
         <CardTitle>Add New Challenge</CardTitle>
@@ -77,11 +77,25 @@ export default function ChallengeEditor() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="maxScore">Max Score</Label>
+                  <Input
+                    id="maxScore"
+                    type="number"
+                    placeholder="Enter max score"
+                    required
+                  />
+                </div>
+              </>
+            )}
+            {currentPage === 2 && (
+              <>
+                <div className="space-y-2 h-3/4">
                   <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
                     placeholder="Enter challenge description"
                     required
+                    className="h-full"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -96,7 +110,7 @@ export default function ChallengeEditor() {
                 </div>
               </>
             )}
-            {currentPage === 2 && (
+            {currentPage === 3 && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="verificationMode">Verification Mode</Label>
@@ -160,17 +174,17 @@ export default function ChallengeEditor() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          {currentPage === 2 && (
-            <Button type="button" onClick={() => setCurrentPage(1)}>
+          {currentPage > 1 && (
+            <Button type="button" onClick={() => setCurrentPage(currentPage - 1)}>
               Previous
             </Button>
           )}
-          {currentPage === 1 && (
-            <Button type="button" onClick={() => setCurrentPage(2)}>
+          {currentPage < 3 && (
+            <Button type="button" onClick={() => setCurrentPage(currentPage + 1)}>
               Next
             </Button>
           )}
-          {currentPage === 2 && (
+          {currentPage === 3 && (
             <Button type="submit" className="ml-auto" disabled={isLoading}>
               {isLoading ? "Creating..." : "Create Challenge"}
             </Button>
