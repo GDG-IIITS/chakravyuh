@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Search, MoreVertical, Edit, Trash2, Plus } from "lucide-react";
+import ChallengeEditor from "./add-challenge";
 
 type Challenge = {
   id: string;
@@ -184,65 +185,8 @@ export function ChallengesPage() {
       </Table>
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {selectedChallenge ? "Edit Challenge" : "Add New Challenge"}
-            </DialogTitle>
-            <DialogDescription>
-              {selectedChallenge
-                ? "Edit the details of the challenge."
-                : "Enter the details of the new challenge."}
-            </DialogDescription>
-          </DialogHeader>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const challenge = Object.fromEntries(
-                formData.entries()
-              ) as unknown as Challenge;
-              handleAddOrEditChallenge(challenge);
-            }}
-          >
-            <div className="grid gap-4 py-4">
-              {[
-                "title",
-                "no",
-                "summary",
-                "creator",
-                "maxScore",
-                "verificationType",
-                "numHints",
-                "startTime",
-                "endTime",
-              ].map((field) => (
-                <div
-                  key={field}
-                  className="grid grid-cols-4 items-center gap-4"
-                >
-                  <Label htmlFor={field} className="text-right">
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                  </Label>
-                  <Input
-                    id={field}
-                    name={field}
-                    defaultValue={
-                      selectedChallenge
-                        ? selectedChallenge[field as keyof Challenge]
-                        : ""
-                    }
-                    className="col-span-3"
-                  />
-                </div>
-              ))}
-            </div>
-            <DialogFooter>
-              <Button type="submit">
-                {selectedChallenge ? "Save Changes" : "Add Challenge"}
-              </Button>
-            </DialogFooter>
-          </form>
+        <DialogContent className="bg-gray-100 bg-transparent border-none">
+          <ChallengeEditor challenge={selectedChallenge} />
         </DialogContent>
       </Dialog>
 
