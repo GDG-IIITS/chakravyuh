@@ -10,7 +10,7 @@ import {
 import { ICreateUserDto } from '../dto/create-user.dto';
 import { UsersService } from '../users.service';
 // import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles.decorator';
 import { IUpdateUserDto } from '../dto/update-user.dto';
 import { URoles } from '../users.schema';
@@ -22,26 +22,25 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @ApiOperation({ summary: '[ADMIN] Create a user' })
   async create(@Body() createUserDto: ICreateUserDto) {
     return this.usersService.icreate(createUserDto);
   }
 
   @Get()
+  @ApiOperation({ summary: '[ADMIN] Get all users' })
   async findAll() {
     return this.usersService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(+id);
-  // }
-
   @Patch(':id')
+  @ApiOperation({ summary: '[ADMIN] Update a user' })
   update(@Param('id') id: string, @Body() updateUserDto: IUpdateUserDto) {
     return this.usersService.updateUser(id, updateUserDto);
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: '[ADMIN] Delete a user' })
   remove(@Param('id') id: string) {
     return this.usersService.removeUser(id);
   }
