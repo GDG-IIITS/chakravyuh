@@ -61,7 +61,7 @@ export default function ChallengeEditor() {
                     required
                   />
                 </div>
-                <div className="">
+                <div className="mb-2">
                   <Label className="ml-1" htmlFor="challengeNumber">
                     Number
                   </Label>
@@ -72,7 +72,7 @@ export default function ChallengeEditor() {
                     required
                   />
                 </div>
-                <div className="">
+                <div className="mb-2">
                   <Label className="ml-1" htmlFor="challengeSummary">
                     Summary
                   </Label>
@@ -82,7 +82,7 @@ export default function ChallengeEditor() {
                     required
                   />
                 </div>
-                <div className="">
+                <div className="mb-2">
                   <Label className="ml-1" htmlFor="maxScore">
                     Max Score
                   </Label>
@@ -97,7 +97,7 @@ export default function ChallengeEditor() {
             )}
             {currentPage === 2 && (
               <>
-                <div className=" h-3/4">
+                <div className="mb-2 h-3/4">
                   <Label className="ml-1" htmlFor="description">
                     Description
                   </Label>
@@ -110,13 +110,13 @@ export default function ChallengeEditor() {
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="">
+                  <div className="mb-2">
                     <Label className="ml-1" htmlFor="startTime">
                       Start Time
                     </Label>
                     <Input id="startTime" type="datetime-local" required />
                   </div>
-                  <div className="">
+                  <div className="mb-2">
                     <Label className="ml-1" htmlFor="endTime">
                       End Time
                     </Label>
@@ -127,7 +127,7 @@ export default function ChallengeEditor() {
             )}
             {currentPage === 3 && (
               <>
-                <div className="">
+                <div className="mb-2">
                   <Label className="ml-1" htmlFor="verificationMode">
                     Verification Mode
                   </Label>
@@ -146,7 +146,7 @@ export default function ChallengeEditor() {
                   </Select>
                 </div>
                 {verificationMode === "Mono" && (
-                  <div className="">
+                  <div className="mb-2">
                     <Label className="ml-1" htmlFor="flag">
                       Flag
                     </Label>
@@ -154,7 +154,7 @@ export default function ChallengeEditor() {
                   </div>
                 )}
                 {verificationMode === "Unique" && (
-                  <div className="">
+                  <div className="mb-2">
                     <Label className="ml-1" htmlFor="csv">
                       Paste CSV Text
                     </Label>
@@ -167,7 +167,7 @@ export default function ChallengeEditor() {
                   </div>
                 )}
                 {verificationMode === "Custom" && (
-                  <div className="">
+                  <div className="mb-2">
                     <Label className="ml-1" htmlFor="apiKey">
                       API Key
                     </Label>
