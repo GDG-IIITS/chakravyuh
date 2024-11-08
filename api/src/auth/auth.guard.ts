@@ -33,10 +33,13 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    const allowInactive = this.reflector.getAllAndOverride<boolean>(
-      ALLOW_INACTIVE_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const allowInactive =
+      this.reflector.getAllAndOverride<boolean>(ALLOW_INACTIVE_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ]) || false;
+
+    console.log('allowInactive', allowInactive);
     const url = context.switchToHttp().getRequest().url;
     if (isPublic || EXTRA_PUBLIC_ROUTES.includes(url)) {
       return true;
