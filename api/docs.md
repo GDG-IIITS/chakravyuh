@@ -1,0 +1,1 @@
+- score is kept in two places in team schema, and in scores log
