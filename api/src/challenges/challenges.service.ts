@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { parse } from 'csv-parse/sync';
 import { Model } from 'mongoose';
+import { TeamsService } from 'src/teams/teams.service';
 import {
   Challenge,
   ChallengeDocument,
-  SubmissionVerification,
   VerificationKind,
 } from './challenges.schema';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
@@ -16,6 +19,7 @@ export class ChallengesService {
   constructor(
     @InjectModel(Challenge.name)
     private challengeModel: Model<ChallengeDocument>,
+    private readonly teamsService: TeamsService,
   ) {}
 
   async create(
@@ -27,6 +31,7 @@ export class ChallengesService {
     if (
       createChallengeDto.submissionVerificationMode === VerificationKind.mono
     ) {
+      console.log(createChallengeDto.flag);
       submissionVerification = {
         kind: VerificationKind.mono,
         flag: createChallengeDto.flag || '',
@@ -34,7 +39,16 @@ export class ChallengesService {
     } else if (
       createChallengeDto.submissionVerificationMode === VerificationKind.unique
     ) {
-      const flagsMap = this.parseCsvToMap(createChallengeDto.flags);
+      const flagsMap = this.parseStrToMap(createChallengeDto.flags);
+
+      const isValid = await this.teamsService.validateTeams(
+        Array.from(flagsMap.keys()),
+      );
+
+      if (!isValid) {
+        throw new NotAcceptableException('Invalid team ids in the string');
+      }
+
       submissionVerification = {
         kind: VerificationKind.unique,
         flags: flagsMap,
@@ -46,7 +60,7 @@ export class ChallengesService {
         kind: VerificationKind.custom,
       };
     } else {
-      throw new Error('Invalid submissionVerificationMode');
+      throw new NotAcceptableException('Invalid Submission Verification Mode');
     }
 
     const newChallenge = new this.challengeModel({
@@ -58,16 +72,17 @@ export class ChallengesService {
     return await newChallenge.save();
   }
 
-  private parseCsvToMap(csv: string): Map<string, string> {
-    const records = parse(csv, {
-      columns: ['teamId', 'flag'],
-      skip_empty_lines: true,
-    });
+  private parseStrToMap(str: string): Map<string, string> {
+    // Format : teamId,flag,teamId,flag
+    const teamsFlags = str.split(',');
+    if (teamsFlags.length % 2 !== 0) {
+      throw new NotAcceptableException('Invalid flags string');
+    }
 
     const flagsMap = new Map<string, string>();
-    records.forEach((record: { teamId: string; flag: string }) => {
-      flagsMap.set(record.teamId, record.flag);
-    });
+    for (let i = 0; i < teamsFlags.length; i += 2) {
+      flagsMap.set(teamsFlags[i], teamsFlags[i + 1]);
+    }
 
     return flagsMap;
   }

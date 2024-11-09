@@ -97,4 +97,11 @@ export class TeamsService {
     }
     return removedTeam;
   }
+
+  async validateTeams(teamIds: string[]): Promise<boolean> {
+    const count = await this.teamsModel
+      .countDocuments({ _id: { $in: teamIds } })
+      .exec();
+    return count === teamIds.length;
+  }
 }

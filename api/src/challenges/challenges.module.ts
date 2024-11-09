@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ChallengesService } from './challenges.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { TeamsModule } from 'src/teams/teams.module';
 import { ChallengesController } from './challenges.controller';
 import { Challenge, ChallengeSchema } from './challenges.schema';
-import { MongooseModule } from '@nestjs/mongoose';
+import { ChallengesService } from './challenges.service';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { MongooseModule } from '@nestjs/mongoose';
         schema: ChallengeSchema,
       },
     ]),
+    TeamsModule,
   ],
   controllers: [ChallengesController],
   providers: [ChallengesService],
