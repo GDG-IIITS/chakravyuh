@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       console.log("login reaches authprovider");
       const response = await axios.post(
-        "https://api.chakravyuh.live/auth/login",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
         { email, password }
       );
       console.log("login response", response);
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const signup = async (email: string, password: string, fullName: string) => {
     try {
       const response = await axios.post(
-        "https://api.chakravyuh.live/auth/register",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
         {
           email,
           password,
