@@ -74,10 +74,10 @@ export class TeamsService {
     if (!user.team) {
       throw new NotFoundException('User not in a team');
     }
-    const team = (await this.teamsModel.findById(user.team)).populate(
-      'lead',
-      'fullName ',
-    );
+    const team = await this.teamsModel.findById(user.team).populate([
+      { path: 'lead', select: 'fullName' },
+      { path: 'members', select: 'fullName' },
+    ]);
     if (!team) {
       throw new NotFoundException('Team not found');
     }
@@ -85,7 +85,23 @@ export class TeamsService {
   }
 
   async findAll(): Promise<Team[]> {
-    return this.teamsModel.find().exec();
+    return this.teamsModel
+      .find()
+      .populate([
+        { path: 'lead', select: 'fullName' },
+        { path: 'members', select: 'fullName' },
+      ])
+      .exec();
+  }
+
+  async getLeaderboard(ug: number): Promise<Team[]> {
+    return this.teamsModel
+      .find({
+        ug: ug,
+      })
+      .sort({ score: -1 })
+      .populate('lead', 'fullName email')
+      .exec();
   }
 
   async findAllIds(): Promise<string> {

@@ -40,6 +40,13 @@ export class TeamsController {
     return this.teamsService.join(req['user'].id, joinTeamDto);
   }
 
+  @Get('/leaderboard')
+  @ApiOperation({ summary: 'Get teams leaderboard' })
+  async leaderboard(@Req() req: Request): Promise<Team[]> {
+    const ug = req['user'].ug;
+    return this.teamsService.getLeaderboard(ug);
+  }
+
   @Get('/my')
   @ApiOperation({ summary: 'Get my team' })
   async my(@Req() req: Request): Promise<Team> {
