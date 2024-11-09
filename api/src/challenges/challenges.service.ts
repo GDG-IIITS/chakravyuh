@@ -160,10 +160,12 @@ export class ChallengesService {
 
   async verifySubmission(
     userId: string,
-    challengeId: string,
+    challengeNo: number,
     flag: string,
   ): Promise<boolean> {
-    const challenge = await this.challengeModel.findById(challengeId).exec();
+    const challenge = await this.challengeModel
+      .findOne({ no: challengeNo })
+      .exec();
 
     const user = await this.usersService.findById(userId);
     if (!user.team) {

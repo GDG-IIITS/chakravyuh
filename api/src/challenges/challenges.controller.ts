@@ -77,7 +77,7 @@ export class ChallengesController {
   ): Promise<boolean> {
     return await this.challengesService.verifySubmission(
       req['user'].id,
-      flagSubmission.challengeId,
+      flagSubmission.challengeNo,
       flagSubmission.flag,
     );
   }
