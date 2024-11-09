@@ -85,33 +85,28 @@ export class ChallengesService {
   }
 
   async update(
+    userId: string,
     id: string,
     updateChallengeDto: UpdateChallengeDto,
   ): Promise<Challenge> {
-    const findChallenge = await this.challengeModel.findById(id).exec();
-
-    if (!findChallenge) {
-      throw new NotFoundException(`Challenge with ID ${id} not found`);
-    }
-
-    if (findChallenge.creator !== updateChallengeDto.creator) {
-      throw new NotFoundException(
-        `You are not allowed to update this challenge. You are not the creator of this challenge`,
-      );
-    }
-
     const updatedChallenge = await this.challengeModel
-      .findByIdAndUpdate(id, updateChallengeDto, { new: true })
+      .findByIdAndUpdate(
+        id,
+        { ...updateChallengeDto, creator: userId, updatedAt: Date.now() },
+        { new: true },
+      )
       .exec();
     if (!updatedChallenge) {
-      throw new NotFoundException(`Challenge with ID ${id} not found`);
+      throw new NotFoundException(
+        `Challenge with ID ${id} not found, or you do not have permission to update it`,
+      );
     }
     return updatedChallenge;
   }
 
-  async remove(id: string): Promise<Challenge> {
+  async remove(userId: string, id: string): Promise<Challenge> {
     const removedChallenge = await this.challengeModel
-      .findByIdAndDelete(id)
+      .findOneAndDelete({ _id: id, creator: userId })
       .exec();
     if (!removedChallenge) {
       throw new NotFoundException(`Challenge with ID ${id} not found`);

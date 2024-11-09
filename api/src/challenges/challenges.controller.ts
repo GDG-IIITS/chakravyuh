@@ -15,6 +15,7 @@ import { Challenge } from './challenges.schema';
 import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
+import { Request } from 'express';
 
 @ApiTags('challenges')
 @Controller('challenges')
@@ -34,7 +35,6 @@ export class ChallengesController {
     );
   }
 
-  @Roles(URoles.superuser, URoles.admin, URoles.user)
   @Get()
   @ApiOperation({ summary: 'Get all challenges' })
   async findAll(): Promise<Challenge[]> {
@@ -54,14 +54,22 @@ export class ChallengesController {
   async update(
     @Param('id') id: string,
     @Body() updateChallengeDto: UpdateChallengeDto,
+    @Req() req: Request,
   ): Promise<Challenge> {
-    return await this.challengesService.update(id, updateChallengeDto);
+    return await this.challengesService.update(
+      req['user'].id,
+      id,
+      updateChallengeDto,
+    );
   }
 
   @Roles(URoles.superuser, URoles.admin)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete challenge by id' })
-  async remove(@Param('id') id: string): Promise<Challenge> {
-    return await this.challengesService.remove(id);
+  async remove(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<Challenge> {
+    return await this.challengesService.remove(req['user'].id, id);
   }
 }
