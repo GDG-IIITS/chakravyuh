@@ -40,7 +40,7 @@ export class MonoVerification extends SubmissionVerification {
 export class UniqueVerification extends SubmissionVerification {
   kind!: VerificationKind.unique;
 
-  @Prop({ required: true, default: new Map() })
+  @Prop({ required: true, default: {} })
   flags: Map<string, string>;
   // map between team id and flag
 }
