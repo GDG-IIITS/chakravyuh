@@ -18,7 +18,8 @@ export const appConfig = {
     (x) => lodash.trim(x, '/'),
   ),
 
-  defaultCorsAllowedOrigins: [/\.chakravyuh\.live$/],
+  // defaultCorsAllowedOrigins: [/\.chakravyuh\.live$/],
+  defaultCorsAllowedOrigins: [],
 
   mongoConStr: fromEnv('MONGO_CON_STR'),
 
