@@ -16,6 +16,7 @@ import { Challenge } from './challenges.schema';
 import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
+import { FlagSubmissionDto } from './dto/flag-submission.dto';
 
 @ApiTags('challenges')
 @Controller('challenges')
@@ -59,6 +60,21 @@ export class ChallengesController {
   @ApiOperation({ summary: 'Get next challenge for participant' })
   async myTodo(@Req() req: Request): Promise<Challenge> {
     return await this.challengesService.myTodo(req['user'].id);
+  }
+
+  @Post('submit')
+  @ApiOperation({
+    summary: 'Participant can submit the flag they found for a  challenge',
+  })
+  async verifySubmission(
+    @Req() req: Request,
+    @Body() flagSubmission: FlagSubmissionDto,
+  ): Promise<boolean> {
+    return await this.challengesService.verifySubmission(
+      req['user'].id,
+      flagSubmission.challengeId,
+      flagSubmission.flag,
+    );
   }
 
   @Roles(URoles.superuser, URoles.admin)
