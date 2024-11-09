@@ -41,6 +41,8 @@ export class AuthService {
       sessionCookie.attributes.sameSite = 'none';
     // NOTE: the value of maxAge given by lucia is in seconds, but res.cookie of express expects it in milliseconds
     sessionCookie.attributes.maxAge = 1000 * sessionCookie.attributes.maxAge;
+    if (appConfig.setCookieDomain && appConfig.nodeEnv != 'localhost')
+      sessionCookie.attributes.domain = appConfig.setCookieDomain;
     res.cookie(
       sessionCookie.name,
       sessionCookie.value,
