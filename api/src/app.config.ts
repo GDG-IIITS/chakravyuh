@@ -18,8 +18,6 @@ export const appConfig = {
     (x) => lodash.trim(x, '/'),
   ),
 
-  setCookieDomain: fromEnv('SET_COOKIE_DOMAIN', '.chakravyuh.live'),
-
   defaultCorsAllowedOrigins: [/\.chakravyuh\.live$/],
 
   mongoConStr: fromEnv('MONGO_CON_STR'),
