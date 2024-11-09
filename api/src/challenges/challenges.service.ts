@@ -265,6 +265,24 @@ export class ChallengesService {
     return await this.scoresService.create(createScoreDto);
   }
 
+  async markDone(
+    userId: string,
+    createScoreDto: CreateScoreDto,
+  ): Promise<boolean> {
+    const team = await this.teamsService.findById(createScoreDto.team);
+    const challenge = await this.findOne(createScoreDto.challenge);
+    if (challenge.creator != userId) {
+      throw new ForbiddenException(
+        'Only the creator of the challenge can mark it as done for a participant. Contact superuser for help!',
+      );
+    }
+    await this.canSubmit(team, challenge);
+    team.score += createScoreDto.score;
+    await team.save();
+    await this.scoresService.create(createScoreDto);
+    return true;
+  }
+
   async findOne(id: string): Promise<ChallengeDocument> {
     const challenge = await this.challengeModel.findById(id).exec();
     if (!challenge) {

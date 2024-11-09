@@ -30,7 +30,7 @@ export class ChallengesController {
 
   @Roles(URoles.superuser, URoles.admin)
   @Post()
-  @ApiOperation({ summary: 'Create a challenge' })
+  @ApiOperation({ summary: '[ADMIN] Create a challenge' })
   async create(
     @Req() req: Request,
     @Body() createChallengeDto: CreateChallengeDto,
@@ -50,7 +50,7 @@ export class ChallengesController {
 
   @Roles(URoles.superuser, URoles.admin)
   @Get(':id')
-  @ApiOperation({ summary: 'Find challenge by id' })
+  @ApiOperation({ summary: '[ADMIN] Find challenge by id' })
   async findOne(@Param('id') id: string): Promise<Challenge> {
     return await this.challengesService.findOne(id);
   }
@@ -79,6 +79,18 @@ export class ChallengesController {
       req['user'].id,
       flagSubmission.challengeId,
       flagSubmission.flag,
+    );
+  }
+
+  @Post('mark/done')
+  @ApiOperation({ summary: '[ADMIN] Mark a challenge as done' })
+  async markDone(
+    @Body() createScoreDto: CreateScoreDto,
+    @Req() req: Request,
+  ): Promise<boolean> {
+    return await this.challengesService.markDone(
+      req['user'].id,
+      createScoreDto,
     );
   }
 
