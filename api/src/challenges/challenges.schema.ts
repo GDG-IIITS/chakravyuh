@@ -47,7 +47,7 @@ export class UniqueVerification extends SubmissionVerification {
 
 @Schema({ _id: false })
 export class CustomVerification extends SubmissionVerification {
-  kind = VerificationKind.custom;
+  kind!: VerificationKind.custom;
 
   @Prop({ required: true, default: generateApiKey })
   apiKey: string;
@@ -92,7 +92,10 @@ export class Challenge {
     required: true,
     type: SubmissionVerificationSchema,
   })
-  submissionVerification: MonoVerification | UniqueVerification | CustomVerification;
+  submissionVerification:
+    | MonoVerification
+    | UniqueVerification
+    | CustomVerification;
 
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
