@@ -36,7 +36,7 @@ export class TeamsService {
   async join(userId: string, joinTeamDto: JoinTeamDto): Promise<Team> {
     const team = await this.teamsModel.findOne({ joinCode: joinTeamDto.code });
     if (!team) {
-      throw new ForbiddenException(`Invalid JoinCode : ${joinCode}`);
+      throw new ForbiddenException(`Invalid JoinCode`);
     }
     const user = await this.userService.findById(userId);
 
