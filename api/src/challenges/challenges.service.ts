@@ -15,6 +15,7 @@ import {
 } from './challenges.schema';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
+import { ScoresService } from 'src/scores/scores.service';
 
 @Injectable()
 export class ChallengesService {
@@ -23,6 +24,7 @@ export class ChallengesService {
     private challengeModel: Model<ChallengeDocument>,
     private readonly teamsService: TeamsService,
     private readonly usersService: UsersService,
+    private readonly scoresService: ScoresService,
   ) {}
 
   async create(
@@ -134,6 +136,13 @@ export class ChallengesService {
     if (!challenge) {
       throw new NotFoundException(`Challenge with ID ${challengeId} not found`);
     }
+    const now = Date.now();
+    if (
+      now < challenge.startTime.getTime() ||
+      now > challenge.endTime.getTime()
+    ) {
+      throw new NotAcceptableException('Challenge is not active');
+    }
 
     const user = await this.usersService.findById(userId);
     if (!user.team) {
@@ -153,26 +162,55 @@ export class ChallengesService {
     }
 
     if (challenge.submissionVerification.kind === VerificationKind.mono) {
+      if (challenge.submissionVerification.flag !== '') {
+        throw new ForbiddenException(
+          'This challenge is not ready for evaluation. Please contact admins!',
+        );
+      }
       if (flag === challenge.submissionVerification.flag) {
         team.score += 1;
         await team.save();
+        await this.scoresService.create({
+          challenge: challenge.id,
+          team: team.id,
+          score: 1,
+        });
         return true;
+      } else {
+        await this.scoresService.create({
+          challenge: challenge.id,
+          team: team.id,
+          score: 0,
+        });
+        return false;
       }
     } else if (
       challenge.submissionVerification.kind === VerificationKind.unique
     ) {
+      if (!challenge.submissionVerification.flags.has(user.team.toString())) {
+        throw new ForbiddenException(
+          'This challenge is not ready for evaluation. Please contact admins!',
+        );
+      }
       if (
-        challenge.submissionVerification.flags.has(user.team.toString()) &&
         flag ===
-          challenge.submissionVerification.flags.get(user.team.toString())
+        challenge.submissionVerification.flags.get(user.team.toString())
       ) {
         team.score += 1;
         await team.save();
+        await this.scoresService.create({
+          challenge: challenge.id,
+          team: team.id,
+          score: 1,
+        });
         return true;
       } else {
-        throw new ForbiddenException(
-          'This challene is not ready for evaluation. Please contact admins!',
-        );
+        await this.scoresService.create({
+          challenge: challenge.id,
+          team: team.id,
+          score: 0,
+        });
+        return false;
       }
     } else if (
       challenge.submissionVerification.kind === VerificationKind.custom
