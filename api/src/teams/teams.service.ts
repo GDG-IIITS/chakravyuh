@@ -11,6 +11,7 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { JoinTeamDto } from './dto/join-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { Team, TeamDocument } from './teams.schema';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class TeamsService {
@@ -56,7 +57,7 @@ export class TeamsService {
       throw new ForbiddenException('User already in team');
     }
 
-    if (team.lead === userId) {
+    if (team.lead.toString() === userId) {
       throw new ForbiddenException('Lead can not join as a member');
     }
 
@@ -73,7 +74,10 @@ export class TeamsService {
     if (!user.team) {
       throw new NotFoundException('User not in a team');
     }
-    const team = await this.teamsModel.findById(user.team);
+    const team = (await this.teamsModel.findById(user.team)).populate(
+      'lead',
+      'fullName ',
+    );
     if (!team) {
       throw new NotFoundException('Team not found');
     }
