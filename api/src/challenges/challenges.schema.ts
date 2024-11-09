@@ -20,6 +20,7 @@ export function generateApiKey() {
 
 @Schema({ _id: false, discriminatorKey: 'kind' })
 export class SubmissionVerification {
+  @Prop({ required: true, enum: VerificationKind })
   kind!: string;
 }
 
@@ -30,6 +31,7 @@ export const SubmissionVerificationSchema = SchemaFactory.createForClass(
 @Schema({ _id: false })
 export class MonoVerification extends SubmissionVerification {
   kind!: VerificationKind.mono;
+
   @Prop({ required: true, default: '' })
   flag: string;
 }
@@ -37,14 +39,16 @@ export class MonoVerification extends SubmissionVerification {
 @Schema({ _id: false })
 export class UniqueVerification extends SubmissionVerification {
   kind!: VerificationKind.unique;
+
   @Prop({ required: true, default: new Map() })
   flags: Map<string, string>;
   // map between team id and flag
 }
 
 @Schema({ _id: false })
-export class Custom extends SubmissionVerification {
+export class CustomVerification extends SubmissionVerification {
   kind = VerificationKind.custom;
+
   @Prop({ required: true, default: generateApiKey })
   apiKey: string;
 }
@@ -88,7 +92,7 @@ export class Challenge {
     required: true,
     type: SubmissionVerificationSchema,
   })
-  submissionVerification: MonoVerification | UniqueVerification | Custom;
+  submissionVerification: MonoVerification | UniqueVerification | CustomVerification;
 
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
@@ -103,16 +107,16 @@ export const ChallengeSchema = initDiscriminators(
   'submissionVerification',
   [
     {
-      name: MonoVerification.name,
+      name: 'mono',
       schema: SchemaFactory.createForClass(MonoVerification),
     },
     {
-      name: UniqueVerification.name,
+      name: 'unique',
       schema: SchemaFactory.createForClass(UniqueVerification),
     },
     {
-      name: Custom.name,
-      schema: SchemaFactory.createForClass(Custom),
+      name: 'custom',
+      schema: SchemaFactory.createForClass(CustomVerification),
     },
   ],
 );
