@@ -36,6 +36,7 @@ export function ChallengesPage() {
     isAddModalOpen,
     isDeleteModalOpen,
     selectedChallenge,
+    setSelectedChallenge,
     setSearchTerm,
     openAddModal,
     closeAddModal,
@@ -60,7 +61,12 @@ export function ChallengesPage() {
             className="pl-8"
           />
         </div>
-        <Button onClick={openAddModal}>
+        <Button
+          onClick={() => {
+            setSelectedChallenge(null); // Reset selectedChallenge for new challenge creation
+            openAddModal();
+          }}
+        >
           <Plus /> Add Challenge
         </Button>
       </div>
@@ -102,7 +108,12 @@ export function ChallengesPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => openAddModal()}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedChallenge(challenge); // Set the challenge for editing
+                        openAddModal();
+                      }}
+                    >
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
@@ -122,7 +133,7 @@ export function ChallengesPage() {
 
       <Dialog open={isAddModalOpen} onOpenChange={closeAddModal}>
         <DialogContent className="bg-gray-100 bg-transparent border-none">
-          <ChallengeEditor challenge={selectedChallenge} />
+          <ChallengeEditor />
         </DialogContent>
       </Dialog>
 

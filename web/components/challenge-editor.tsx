@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -21,269 +23,303 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Plus, Trash } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { useChallengesContext } from "@/context/challengesContext";
+
+type Hint = {
+  text: string;
+  show: boolean;
+};
 
 export default function ChallengeEditor() {
-  const [verificationMode, setVerificationMode] = useState("Mono");
+  const { selectedChallenge, addChallenge, setSelectedChallenge } =
+    useChallengesContext();
+
+  const [verificationMode, setVerificationMode] = useState("mono");
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [hints, setHints] = useState([{ text: "", show: false }]);
-  const totalPages = 4;
+  const [hints, setHints] = useState<Hint[]>([{ text: "", show: false }]);
+  const [Challenge, setChallenge] = useState(selectedChallenge);
+
+  useEffect(() => {
+    if (selectedChallenge) {
+      setVerificationMode(selectedChallenge.verificationType);
+      setHints(
+        selectedChallenge.numHints
+          ? Array(selectedChallenge.numHints).fill({
+              text: "Some hint here",
+              show: false,
+            })
+          : []
+      );
+    }
+  }, [selectedChallenge]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Handle form submission
+    setIsLoading(true);
+
+    if (selectedChallenge) {
+      console.log("Updating challenge", Challenge);
+    } else {
+      console.log("adding challenge", {
+        title: Challenge?.title || "",
+        no: Challenge?.no || 0,
+        summary: Challenge?.summary || "",
+        creator: "",
+        maxScore: Challenge?.maxScore || 0,
+        submissionVerificationMode: verificationMode,
+        flag: Challenge?.flag || "",
+        csv: Challenge?.csv || "",
+        numHints: hints.length,
+        startTime: Challenge?.startTime || "",
+        endTime: Challenge?.endTime || "",
+      });
+      // Call addChallenge from context
+      addChallenge({
+        title: Challenge?.title || "",
+        no: Challenge?.no || 0,
+        summary: Challenge?.summary || "",
+        creator: "",
+        maxScore: Challenge?.maxScore || 0,
+        submissionVerificationMode: verificationMode,
+        flag: Challenge?.flag || "",
+        csv: Challenge?.csv || "",
+        numHints: hints.length,
+        startTime: Challenge?.startTime || "",
+        endTime: Challenge?.endTime || "",
+      });
+    }
+    setIsLoading(false);
   };
 
-  const addHint = () => {
-    setHints([...hints, { text: "", show: false }]);
-  };
+  const addHint = useCallback(() => {
+    setHints((prevHints) => [...prevHints, { text: "", show: false }]);
+  }, []);
 
-  const deleteHint = (index) => {
-    setHints(hints.filter((_, i) => i !== index));
-  };
+  const deleteHint = useCallback((index) => {
+    setHints((prevHints) => prevHints.filter((_, i) => i !== index));
+  }, []);
 
-  const updateHint = (index, newHint) => {
-    const newHints = [...hints];
-    newHints[index] = newHint;
-    setHints(newHints);
-  };
+  const updateHint = useCallback((index, newHint) => {
+    setHints((prevHints) => {
+      const updatedHints = [...prevHints];
+      updatedHints[index] = newHint;
+      return updatedHints;
+    });
+  }, []);
 
   return (
     <Card className="w-full max-w-2xl mx-auto py">
       <CardHeader>
         <div className="mb-4">
-          <Progress
-            value={(currentPage / totalPages) * 100}
-            className="w-full"
-          />
+          <Progress value={(currentPage / 4) * 100} className="w-full" />
         </div>
-        <CardTitle>Add New Challenge</CardTitle>
+        <CardTitle>
+          {selectedChallenge ? "Edit Challenge" : "Add New Challenge"}
+        </CardTitle>
         <CardDescription>
-          Create a new digital treasure hunt challenge
+          {selectedChallenge
+            ? "Edit the details of the selected challenge"
+            : "Create a new digital treasure hunt challenge"}
         </CardDescription>
       </CardHeader>
+
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="min-h-[300px]">
             {currentPage === 1 && (
               <>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="title">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    placeholder="Enter challenge title"
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="challengeNumber">
-                    Number
-                  </Label>
-                  <Input
-                    id="challengeNumber"
-                    type="number"
-                    placeholder="Enter challenge number"
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="challengeSummary">
-                    Summary
-                  </Label>
-                  <Textarea
-                    id="challengeSummary"
-                    placeholder="Enter challenge summary"
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="maxScore">
-                    Max Score
-                  </Label>
-                  <Input
-                    id="maxScore"
-                    type="number"
-                    placeholder="Enter max score"
-                    required
-                  />
-                </div>
+                <InputField
+                  label="Title"
+                  id="title"
+                  placeholder="Enter challenge title"
+                  value={Challenge?.title || ""}
+                  required
+                  onChange={(e) =>
+                    setChallenge({
+                      ...Challenge,
+                      title: e.target.value,
+                    })
+                  }
+                />
+                <InputField
+                  label="Number"
+                  id="challengeNumber"
+                  type="number"
+                  placeholder="Enter challenge number"
+                  value={Challenge?.no || 0}
+                  required
+                  onChange={(e) =>
+                    setChallenge({
+                      ...Challenge,
+                      no: Number(e.target.value),
+                    })
+                  }
+                />
+                <TextareaField
+                  label="Summary"
+                  id="challengeSummary"
+                  placeholder="Enter challenge summary"
+                  value={Challenge?.summary || ""}
+                  onChange={(e) =>
+                    setChallenge({
+                      ...Challenge,
+                      summary: e.target.value,
+                    })
+                  }
+                />
+                <InputField
+                  label="Max Score"
+                  id="maxScore"
+                  type="number"
+                  placeholder="Enter max score"
+                  value={Challenge?.maxScore || 0}
+                  required
+                  onChange={(e) =>
+                    setChallenge({
+                      ...Challenge,
+                      maxScore: Number(e.target.value),
+                    })
+                  }
+                />
               </>
             )}
+
             {currentPage === 2 && (
               <>
-                <div className="mb-2 h-3/4">
-                  <Label className="ml-1" htmlFor="description">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    rows={10}
-                    placeholder="Enter challenge description"
+                <TextareaField
+                  label="Description"
+                  id="description"
+                  placeholder="Enter challenge description"
+                  rows={10}
+                  value={Challenge?.description || ""}
+                  onChange={(e) =>
+                    setChallenge({
+                      ...Challenge,
+                      description: e.target.value,
+                    })
+                  }
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField
+                    label="Start Time"
+                    id="startTime"
+                    type="datetime-local"
+                    value={Challenge?.startTime || ""}
                     required
-                    className="h-full"
+                    onChange={(e) =>
+                      setChallenge({
+                        ...Challenge,
+                        startTime: e.target.value,
+                      })
+                    }
+                  />
+                  <InputField
+                    label="End Time"
+                    id="endTime"
+                    type="datetime-local"
+                    value={Challenge?.endTime || ""}
+                    required
+                    onChange={(e) =>
+                      setChallenge({
+                        ...Challenge,
+                        endTime: e.target.value,
+                      })
+                    }
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="startTime">
-                      Start Time
-                    </Label>
-                    <Input id="startTime" type="datetime-local" required />
-                  </div>
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="endTime">
-                      End Time
-                    </Label>
-                    <Input id="endTime" type="datetime-local" required />
-                  </div>
-                </div>
               </>
             )}
+
             {currentPage === 3 && (
               <>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="verificationMode">
-                    Verification Mode
-                  </Label>
-                  <Select
-                    value={verificationMode}
-                    onValueChange={setVerificationMode}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select verification mode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Mono">Mono</SelectItem>
-                      <SelectItem value="Unique">Unique</SelectItem>
-                      <SelectItem value="Custom">Custom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {verificationMode === "Mono" && (
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="flag">
-                      Flag
-                    </Label>
-                    <Input id="flag" placeholder="Enter flag" required />
-                  </div>
+                <SelectField
+                  label="Verification Mode"
+                  value={verificationMode}
+                  options={["mono", "unique", "custom"]}
+                  onChange={(value) => setVerificationMode(value)}
+                />
+                {verificationMode === "mono" && (
+                  <InputField
+                    label="Flag"
+                    id="flag"
+                    placeholder="Enter flag"
+                    required
+                    onChange={(e) =>
+                      setChallenge({
+                        ...Challenge,
+                        flag: e.target.value,
+                      })
+                    }
+                  />
                 )}
-                {verificationMode === "Unique" && (
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="csv">
-                      Paste CSV Text
-                    </Label>
-                    <Textarea
-                      id="csv"
-                      rows={10}
-                      placeholder="Paste CSV text"
-                      required
-                    />
-                  </div>
+                {verificationMode === "unique" && (
+                  <TextareaField
+                    label="Paste CSV Text"
+                    id="csv"
+                    placeholder="Paste CSV text"
+                    rows={10}
+                    required
+                    onChange={(e) =>
+                      setChallenge({
+                        ...Challenge,
+                        csv: e.target.value,
+                      })
+                    }
+                  />
                 )}
-                {verificationMode === "Custom" && (
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="apiKey">
-                      API Key
-                    </Label>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        id="apiKey"
-                        type={isApiKeyVisible ? "text" : "password"}
-                        placeholder="Enter API key"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        onClick={() => setIsApiKeyVisible(!isApiKeyVisible)}
-                      >
-                        {isApiKeyVisible ? "Hide" : "Show"}
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          navigator.clipboard.writeText(
-                            document.getElementById("apiKey").value
-                          )
-                        }
-                      >
-                        Copy
-                      </Button>
-                    </div>
-                  </div>
+                {verificationMode === "custom" && (
+                  <ApiKeyField
+                    isApiKeyVisible={isApiKeyVisible}
+                    onToggle={() => setIsApiKeyVisible(!isApiKeyVisible)}
+                  />
                 )}
               </>
             )}
+
             {currentPage === 4 && (
               <>
-                <div className="mb-2">
-                  <Label className="ml-1">Hints</Label>
-                  {hints.map((hint, index) => (
-                    <div
-                      key={index}
-                      className="mb-2 flex items-center space-x-2"
-                    >
-                      <Textarea
-                        value={hint.text}
-                        onChange={(e) =>
-                          updateHint(index, { ...hint, text: e.target.value })
-                        }
-                        placeholder="Enter hint text"
-                        required
-                      />
-
-                      <label className="flex items-center space-x-2">
-                        <Switch
-                          checked={hint.show}
-                          onCheckedChange={(checked) =>
-                            updateHint(index, { ...hint, show: checked })
-                          }
-                        />
-                      </label>
-                      <Button
-                        type="button"
-                        onClick={() => deleteHint(index)}
-                        className="p-2 bg-white hover:bg-gray-100"
-                      >
-                        <Trash size={16} className="text-black" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    onClick={addHint}
-                    className="flex items-center space-x-2"
-                  >
-                    <Plus size={16} />
-                    <span>Add</span>
-                  </Button>
-                </div>
+                <Label className="ml-1">Hints</Label>
+                {hints.map((hint, index) => (
+                  <HintItem
+                    key={index}
+                    hint={hint}
+                    onDelete={() => deleteHint(index)}
+                    onChange={(newHint) => updateHint(index, newHint)}
+                  />
+                ))}
+                <Button
+                  type="button"
+                  onClick={addHint}
+                  className="flex items-center space-x-2"
+                >
+                  <Plus size={16} />
+                  <span>Add</span>
+                </Button>
               </>
             )}
           </div>
         </CardContent>
+
         <CardFooter className="flex justify-between">
-          {currentPage > 1 && (
-            <Button
-              type="button"
-              onClick={() => setCurrentPage(currentPage - 1)}
-            >
-              Previous
-            </Button>
-          )}
-          {currentPage < 4 && (
+          <Button
+            type="button"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          {currentPage < 4 ? (
             <Button
               type="button"
               onClick={() => setCurrentPage(currentPage + 1)}
-              className={currentPage === 1 ? "ml-auto" : ""}
+              disabled={currentPage === 4}
             >
               Next
             </Button>
-          )}
-          {currentPage === 4 && (
-            <Button type="submit" className="ml-auto" disabled={isLoading}>
+          ) : (
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? "Creating..." : "Create Challenge"}
             </Button>
           )}
@@ -292,3 +328,89 @@ export default function ChallengeEditor() {
     </Card>
   );
 }
+
+const InputField = ({
+  label,
+  id,
+  type = "text",
+  placeholder,
+  required = false,
+  value,
+  onChange,
+}) => (
+  <div className="mb-2">
+    <Label className="ml-1" htmlFor={id}>
+      {label}
+    </Label>
+    <Input
+      id={id}
+      type={type}
+      placeholder={placeholder}
+      required={required}
+      value={value}
+      onChange={onChange}
+    />
+  </div>
+);
+
+const TextareaField = ({
+  label,
+  id,
+  placeholder,
+  rows = 4,
+  required = false,
+  value,
+  onChange,
+}) => (
+  <div className="mb-2">
+    <Label className="ml-1" htmlFor={id}>
+      {label}
+    </Label>
+    <Textarea
+      id={id}
+      rows={rows}
+      placeholder={placeholder}
+      required={required}
+      value={value}
+      onChange={onChange}
+    />
+  </div>
+);
+
+const SelectField = ({ label, value, options, onChange }) => (
+  <div className="mb-2">
+    <Label className="ml-1">{label}</Label>
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select" />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option} value={option}>
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
+
+const ApiKeyField = ({ isApiKeyVisible, onToggle }) => (
+  <div className="flex items-center space-x-2">
+    <Label>Require API Key</Label>
+    <Switch checked={isApiKeyVisible} onCheckedChange={onToggle} />
+  </div>
+);
+
+const HintItem = ({ hint, onDelete, onChange }) => (
+  <div className="flex items-center space-x-2 mb-2">
+    <Textarea
+      value={hint.text}
+      onChange={(e) => onChange({ ...hint, text: e.target.value })}
+      placeholder="Hint text"
+    />
+    <Button type="button" onClick={onDelete} variant="destructive">
+      <Trash size={16} />
+    </Button>
+  </div>
+);

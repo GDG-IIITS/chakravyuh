@@ -1,8 +1,14 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import axios from "axios";
 
-// Define the Challenge type
 type Challenge = {
   id: string;
   title: string;
@@ -10,13 +16,14 @@ type Challenge = {
   summary: string;
   creator: string;
   maxScore: number;
-  verificationType: string;
+  submissionVerificationMode: string;
+  flag: string;
+  csv: string;
   numHints: number;
   startTime: string;
   endTime: string;
 };
 
-// Context props type
 interface ChallengesContextType {
   challenges: Challenge[];
   searchTerm: string;
@@ -30,29 +37,16 @@ interface ChallengesContextType {
   openDeleteModal: (challenge: Challenge) => void;
   closeDeleteModal: () => void;
   handleDeleteChallenge: () => void;
+  setSelectedChallenge: (challenge: Challenge | null) => void;
+  addChallenge: (challenge: Omit<Challenge, "id">) => void;
 }
 
-// Create context
 const ChallengesContext = createContext<ChallengesContextType | undefined>(
   undefined
 );
 
-// Provider component
-export const ChallengesProvider = ({ children }) => {
-  const [challenges, setChallenges] = useState<Challenge[]>([
-    {
-      id: "1",
-      title: "Web Security Challenge",
-      no: 1,
-      summary: "Find and exploit vulnerabilities in a web application",
-      creator: "John Doe",
-      maxScore: 100,
-      verificationType: "Automatic",
-      numHints: 3,
-      startTime: "2023-06-01T00:00:00Z",
-      endTime: "2023-06-30T23:59:59Z",
-    },
-  ]);
+export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -60,13 +54,36 @@ export const ChallengesProvider = ({ children }) => {
     null
   );
 
+  useEffect(() => {
+    // Fetch challenges from API using Axios
+    const fetchChallenges = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/challenges`,
+          {
+            withCredentials: true,
+          }
+        );
+        setChallenges(response.data);
+      } catch (error) {
+        console.error("Error fetching challenges:", error);
+      }
+    };
+
+    fetchChallenges();
+  }, []);
+
   const openAddModal = () => setIsAddModalOpen(true);
-  const closeAddModal = () => setIsAddModalOpen(false);
+  const closeAddModal = () => {
+    setSelectedChallenge(null);
+    setIsAddModalOpen(false);
+  };
 
   const openDeleteModal = (challenge: Challenge) => {
     setSelectedChallenge(challenge);
     setIsDeleteModalOpen(true);
   };
+
   const closeDeleteModal = () => {
     setSelectedChallenge(null);
     setIsDeleteModalOpen(false);
@@ -77,6 +94,36 @@ export const ChallengesProvider = ({ children }) => {
       setChallenges(challenges.filter((c) => c.id !== selectedChallenge.id));
     }
     closeDeleteModal();
+  };
+
+  const addChallenge = async (challenge: Omit<Challenge, "id">) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/challenges`,
+        {
+          ...challenge,
+          hints: challenge.numHints
+            ? Array(challenge.numHints).fill({
+                text: "Some hint here",
+                show: false,
+              })
+            : [],
+        },
+        {
+          withCredentials: true, // Send credentials (cookies) with the request
+        }
+      );
+
+      console.log("Hi");
+      console.log(response.data);
+
+      setChallenges([
+        ...challenges,
+        { ...response.data, id: String(response.data.no) },
+      ]); // Add challenge to state
+    } catch (error) {
+      console.error("Error adding challenge:", error);
+    }
   };
 
   return (
@@ -94,6 +141,8 @@ export const ChallengesProvider = ({ children }) => {
         openDeleteModal,
         closeDeleteModal,
         handleDeleteChallenge,
+        setSelectedChallenge,
+        addChallenge,
       }}
     >
       {children}
@@ -101,7 +150,6 @@ export const ChallengesProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the context
 export const useChallengesContext = () => {
   const context = useContext(ChallengesContext);
   if (!context) {
