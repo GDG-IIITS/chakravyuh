@@ -5,7 +5,6 @@ import axios, { AxiosResponse } from "axios";
 
 interface AuthContextType {
   user: { id: string; email: string; fullName: string } | null;
-  token: string | null;
   login: (email: string, password: string) => Promise<AxiosResponse<any>>;
   signup: (
     email: string,
@@ -18,7 +17,6 @@ interface AuthContextType {
 
 const defaultContext: AuthContextType = {
   user: null,
-  token: null,
   login: async () => Promise.resolve({} as AxiosResponse<any>),
   signup: async () => Promise.resolve({} as AxiosResponse<any>),
   logout: () => {},
@@ -31,16 +29,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<AuthContextType["user"]>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("authToken");
     const savedUser = localStorage.getItem("user");
 
-    if (savedToken && savedUser) {
-      setToken(savedToken);
+    if (savedUser) {
       setUser(JSON.parse(savedUser));
       setIsAuthenticated(true);
     }
@@ -48,18 +43,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const login = async (email: string, password: string) => {
     try {
+      console.log("login reaches authprovider");
       const response = await axios.post(
         "https://api.chakravyuh.live/auth/login",
         { email, password }
       );
-
+      console.log("login response", response);
       const data = response.data;
-      localStorage.setItem("authToken", data.token);
       localStorage.setItem("user", JSON.stringify(data));
 
-      setToken(data.token);
       setUser(data);
-      setIsAuthenticated(!!data.token);
+      setIsAuthenticated(!!data);
 
       router.push("/admin"); // Redirect after login
       return response;
@@ -81,10 +75,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       );
 
       const data = response.data;
-      localStorage.setItem("authToken", data.token);
       localStorage.setItem("user", JSON.stringify(data));
 
-      setToken(data.token);
       setUser(data);
       router.push("/auth/login"); // Redirect after signup
       return response;
@@ -97,7 +89,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const logout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
-    setToken(null);
     setUser(null);
     setIsAuthenticated(false);
     router.push("/auth/login"); // Redirect after logout
@@ -105,7 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, signup, logout, isAuthenticated }}
+      value={{ user, login, signup, logout, isAuthenticated }}
     >
       {children}
     </AuthContext.Provider>

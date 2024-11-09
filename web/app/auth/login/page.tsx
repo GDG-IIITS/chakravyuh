@@ -21,7 +21,7 @@ export default function LoginSignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState(""); // Only for signup
-  const [showLogin, setShowLogin] = useState(false); // Flag for toggling
+  const [showLogin, setShowLogin] = useState(true); // Flag for toggling
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -35,11 +35,14 @@ export default function LoginSignupPage() {
     setError(null);
 
     let response;
-    console.log("flow reaches here");
+
     try {
       if (showLogin) {
+        console.log("awaiting login");
         response = await login(email, password);
+        console.log("login complete");
       } else {
+        console.log("awaiting signup");
         response = await signup(email, password, fullName); // Call signup from context
         setShowLogin(true); // Toggle flag
       }
@@ -111,6 +114,7 @@ export default function LoginSignupPage() {
                   autoComplete="email"
                   autoCorrect="off"
                   disabled={isLoading}
+                  required
                 />
                 <Input
                   id="password"
@@ -119,6 +123,7 @@ export default function LoginSignupPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                   disabled={isLoading}
+                  required
                 />
                 {!showLogin && (
                   <Input
@@ -128,6 +133,7 @@ export default function LoginSignupPage() {
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Full Name"
                     disabled={isLoading}
+                    required
                   />
                 )}
               </div>
