@@ -49,21 +49,26 @@ export class ScoresController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all scores entries' })
+  @ApiOperation({
+    summary:
+      'Get all scores entries(for admins), users will get their own submission entries',
+  })
   async findAll(@Req() req: Request): Promise<Score[]> {
     return this.scoresService.findAll(req['user'].id);
   }
 
   @Roles(URoles.admin, URoles.superuser)
   @Get(':id')
-  @ApiOperation({ summary: 'Find score entry by id' })
+  @ApiOperation({ summary: '[ADMIN] Find score entry by id' })
   async findOne(@Param('id') id: string): Promise<Score> {
     return this.scoresService.findOne(id);
   }
 
   @Roles(URoles.admin, URoles.superuser)
   @Put(':id')
-  @ApiOperation({ summary: 'Update score entry by id' })
+  @ApiOperation({
+    summary: '[ADMIN] Update score entry by id (challenge creator)',
+  })
   async update(
     @Param('id') id: string,
     @Body() updateScoreDto: UpdateScoreDto,
@@ -72,8 +77,8 @@ export class ScoresController {
     return this.scoresService.update(req['user'].id, id, updateScoreDto);
   }
 
-  @Roles(URoles.admin)
-  @ApiOperation({ summary: 'Delete score entry by id' })
+  @Roles(URoles.superuser)
+  @ApiOperation({ summary: '[SUDO] Delete score entry by id' })
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<Score> {
     return this.scoresService.remove(id);
