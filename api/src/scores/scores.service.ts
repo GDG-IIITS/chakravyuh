@@ -5,11 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { VerificationKind } from 'src/challenges/challenges.schema';
+import { ChallengesService } from 'src/challenges/challenges.service';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
 import { Score, ScoreDocument } from './scores.schema';
-import { ChallengesService } from 'src/challenges/challenges.service';
-import { VerificationKind } from 'src/challenges/challenges.schema';
 
 @Injectable()
 export class ScoresService {
@@ -35,10 +35,7 @@ export class ScoresService {
         `Challenge with ID ${createScoreDto.challenge} not found`,
       );
     }
-    if (
-      challenge.submissionVerification.kind !=
-      VerificationKind.customVerification
-    ) {
+    if (challenge.submissionVerification.kind != VerificationKind.custom) {
       throw new NotFoundException(
         `Challenge with ID ${createScoreDto.challenge}  score cannot be updated via API KEY`,
       );

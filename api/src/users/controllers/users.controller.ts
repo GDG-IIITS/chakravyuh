@@ -17,7 +17,7 @@ import { URoles, UserDocument } from '../users.schema';
 
 @ApiTags('users')
 @Controller('users')
-@Roles(URoles.superuser, URoles.admin)
+@Roles(URoles.superuser)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

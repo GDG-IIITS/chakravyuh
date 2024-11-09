@@ -1,7 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Hint, VerificationKind } from '../challenges.schema';
 
 export class CreateChallengeDto {
+  @ApiProperty({ required: true, description: 'Number of the challenge' })
+  no: number;
+
   @ApiProperty({ required: true, description: 'Title of the challenge' })
   title: string;
 
@@ -17,8 +20,18 @@ export class CreateChallengeDto {
   })
   description: string;
 
-  @ApiProperty({ description: 'Hints for the challenge' })
+  @ApiProperty({
+    description: 'Hints for the challenge',
+    type: [Hint],
+    default: [{ text: 'Some hint here', show: false }],
+  })
   hints: Hint[];
+
+  @ApiProperty({ required: true, description: 'Start time of the challenge' })
+  startTime: Date;
+
+  @ApiProperty({ required: true, description: 'End time of the challenge' })
+  endTime: Date;
 
   @ApiProperty({
     enum: VerificationKind,
@@ -26,4 +39,14 @@ export class CreateChallengeDto {
     description: 'Submission verification for the challenge',
   })
   submissionVerificationMode: VerificationKind;
+
+  @ApiPropertyOptional({
+    description: 'Flag for mono submission verification mode',
+  })
+  flag?: string;
+
+  @ApiPropertyOptional({
+    description: 'Flags for unique submission verification mode',
+  })
+  flags?: string;
 }

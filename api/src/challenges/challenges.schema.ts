@@ -3,10 +3,19 @@ import { HydratedDocument } from 'mongoose';
 import { initDiscriminators } from 'src/utils/disc';
 
 export enum VerificationKind {
-  monoFlag = 'monoFlag', // single flag for all participants
-  teamwiseFlag = 'teamwiseFlag', // unique flag for each team
-  customVerification = 'customVerification', // custom verification logic by challenge creator
+  mono = 'mono', // single flag for all participants
+  unique = 'unique', // unique flag for each team
+  custom = 'custom', // custom verification logic by challenge creator
   // challenge creator will get an api key which they can use to update scores for this challenge
+}
+
+export function generateApiKey() {
+  return (
+    'ckrvh_' +
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
 
 @Schema({ _id: false, discriminatorKey: 'kind' })
@@ -14,25 +23,27 @@ export class SubmissionVerification {
   kind!: string;
 }
 
-export class MonoFlagVerification extends SubmissionVerification {
-  kind!: VerificationKind.monoFlag;
+export class monoVerification extends SubmissionVerification {
+  kind!: VerificationKind.mono;
+  @Prop({ required: true, default: '' })
   flag: string;
 }
 
-export class TeamwiseFlagVerification extends SubmissionVerification {
-  kind!: VerificationKind.teamwiseFlag;
+export class uniqueVerification extends SubmissionVerification {
+  kind!: VerificationKind.unique;
+  @Prop({ required: true, default: new Map() })
   flags: Map<string, string>;
   // map between team id and flag
 }
 
-export class CustomVerification extends SubmissionVerification {
-  kind = VerificationKind.customVerification;
+export class custom extends SubmissionVerification {
+  kind = VerificationKind.custom;
+  @Prop({ required: true, default: generateApiKey })
   apiKey: string;
 }
 
 export class Hint {
-  title: string;
-  description: string;
+  text: string;
   show: boolean;
 }
 @Schema()
@@ -65,10 +76,7 @@ export class Challenge {
   hints: Hint[];
 
   @Prop({ required: true, type: SubmissionVerification })
-  submissionVerification:
-    | MonoFlagVerification
-    | TeamwiseFlagVerification
-    | CustomVerification;
+  submissionVerification: monoVerification | uniqueVerification | custom;
 
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
@@ -83,16 +91,16 @@ export const ChallengeSchema = initDiscriminators(
   'submissionVerification',
   [
     {
-      name: MonoFlagVerification.name,
-      schema: SchemaFactory.createForClass(MonoFlagVerification),
+      name: monoVerification.name,
+      schema: SchemaFactory.createForClass(monoVerification),
     },
     {
-      name: TeamwiseFlagVerification.name,
-      schema: SchemaFactory.createForClass(TeamwiseFlagVerification),
+      name: uniqueVerification.name,
+      schema: SchemaFactory.createForClass(uniqueVerification),
     },
     {
-      name: CustomVerification.name,
-      schema: SchemaFactory.createForClass(CustomVerification),
+      name: custom.name,
+      schema: SchemaFactory.createForClass(custom),
     },
   ],
 );
