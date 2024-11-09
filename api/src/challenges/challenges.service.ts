@@ -1,11 +1,14 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ScoresService } from 'src/scores/scores.service';
 import { TeamsService } from 'src/teams/teams.service';
 import { UsersService } from 'src/users/users.service';
 import {
@@ -15,8 +18,9 @@ import {
 } from './challenges.schema';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
-import { ScoresService } from 'src/scores/scores.service';
 import { TeamDocument } from 'src/teams/teams.schema';
+import { CreateScoreDto } from 'src/scores/dto/create-score.dto';
+import { Score } from 'src/scores/scores.schema';
 
 @Injectable()
 export class ChallengesService {
@@ -25,6 +29,7 @@ export class ChallengesService {
     private challengeModel: Model<ChallengeDocument>,
     private readonly teamsService: TeamsService,
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => ScoresService))
     private readonly scoresService: ScoresService,
   ) {}
 
@@ -228,6 +233,37 @@ export class ChallengesService {
       );
     }
     return false;
+  }
+
+  async createViaApiKey(
+    apiKey: string,
+    createScoreDto: CreateScoreDto,
+  ): Promise<Score> {
+    const challenge = await this.findOne(createScoreDto.challenge);
+    if (!challenge) {
+      throw new NotFoundException(
+        `Challenge with ID ${createScoreDto.challenge} not found`,
+      );
+    }
+    const now = Date.now();
+    if (
+      now < challenge.startTime.getTime() ||
+      now > challenge.endTime.getTime()
+    ) {
+      throw new ForbiddenException('Challenge is not active');
+    }
+    if (challenge.submissionVerification.kind != VerificationKind.custom) {
+      throw new NotFoundException(
+        `Challenge with ID ${createScoreDto.challenge}  score cannot be updated via API KEY`,
+      );
+    }
+    if (apiKey !== challenge.submissionVerification.apiKey) {
+      throw new ForbiddenException('Invalid API Key');
+    }
+    const team = await this.teamsService.findById(createScoreDto.team);
+    await this.canSubmit(team, challenge);
+    team.score += createScoreDto.score;
+    return await this.scoresService.create(createScoreDto);
   }
 
   async findOne(id: string): Promise<ChallengeDocument> {
