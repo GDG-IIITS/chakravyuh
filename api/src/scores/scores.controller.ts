@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   Headers,
+  Req,
 } from '@nestjs/common';
 import { ScoresService } from './scores.service';
 import { CreateScoreDto } from './dto/create-score.dto';
@@ -16,13 +17,14 @@ import { URoles } from 'src/users/users.schema';
 import { Roles } from 'src/auth/roles.decorator';
 import { Public } from 'src/auth/public.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @ApiTags('scores')
 @Controller('scores')
 export class ScoresController {
   constructor(private readonly scoresService: ScoresService) {}
 
-  @Roles(URoles.admin)
+  @Roles(URoles.admin, URoles.superuser)
   @Post()
   @ApiOperation({
     summary:
@@ -48,24 +50,26 @@ export class ScoresController {
 
   @Get()
   @ApiOperation({ summary: 'Get all scores entries' })
-  async findAll(): Promise<Score[]> {
-    return this.scoresService.findAll();
+  async findAll(@Req() req: Request): Promise<Score[]> {
+    return this.scoresService.findAll(req['user'].id);
   }
 
+  @Roles(URoles.admin, URoles.superuser)
   @Get(':id')
   @ApiOperation({ summary: 'Find score entry by id' })
   async findOne(@Param('id') id: string): Promise<Score> {
     return this.scoresService.findOne(id);
   }
 
-  @Roles(URoles.admin)
+  @Roles(URoles.admin, URoles.superuser)
   @Put(':id')
   @ApiOperation({ summary: 'Update score entry by id' })
   async update(
     @Param('id') id: string,
     @Body() updateScoreDto: UpdateScoreDto,
+    @Req() req: Request,
   ): Promise<Score> {
-    return this.scoresService.update(id, updateScoreDto);
+    return this.scoresService.update(req['user'].id, id, updateScoreDto);
   }
 
   @Roles(URoles.admin)

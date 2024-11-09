@@ -10,12 +10,15 @@ import { ChallengesService } from 'src/challenges/challenges.service';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
 import { Score, ScoreDocument } from './scores.schema';
+import { UsersService } from 'src/users/users.service';
+import { URoles } from 'src/users/users.schema';
 
 @Injectable()
 export class ScoresService {
   constructor(
     @InjectModel(Score.name) private scoreModel: Model<ScoreDocument>,
     private readonly challengeService: ChallengesService,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createScoreDto: CreateScoreDto): Promise<Score> {
@@ -46,8 +49,15 @@ export class ScoresService {
     return await this.create(createScoreDto);
   }
 
-  async findAll(): Promise<Score[]> {
-    return this.scoreModel.find().exec();
+  async findAll(userId: string): Promise<Score[]> {
+    // only admins can see all scores
+    // normal users can only see scores(submission entries) for their team
+    const user = await this.usersService.findById(userId);
+    const query = {};
+    if (user.role === URoles.user) {
+      query['team'] = user.team;
+    }
+    return this.scoreModel.find(query).exec();
   }
 
   async findOne(id: string): Promise<Score> {
@@ -58,9 +68,25 @@ export class ScoresService {
     return score;
   }
 
-  async update(id: string, updateScoreDto: UpdateScoreDto): Promise<Score> {
+  async update(
+    userId: string,
+    id: string,
+    updateScoreDto: UpdateScoreDto,
+  ): Promise<Score> {
+    const user = await this.usersService.findById(userId);
+    const score = await this.findOne(id);
+    const challenge = await this.challengeService.findOne(score.challenge);
+    if (!challenge.creator === user.id && user.role !== URoles.superuser) {
+      throw new ForbiddenException(
+        'You are not allowed to update this score entry!',
+      );
+    }
     const updatedScore = await this.scoreModel
-      .findByIdAndUpdate(id, updateScoreDto, { new: true })
+      .findByIdAndUpdate(
+        id,
+        { ...updateScoreDto, updatedAt: Date.now() },
+        { new: true },
+      )
       .exec();
     if (!updatedScore) {
       throw new NotFoundException(`Score with ID ${id} not found`);
