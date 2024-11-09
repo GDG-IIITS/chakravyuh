@@ -17,12 +17,12 @@ export class MailerService {
   async sendTemplateMail(sendTemplateDto: SendTemplateDto) {
     switch (sendTemplateDto.templateType) {
       case 'register':
-        sendTemplateDto.subject = 'Interacly Account created successfully';
-        sendTemplateDto.html = `Hello ${sendTemplateDto.username}, <br> <br> Your account has been created successfully. <br> <br> Regards, <br> Team Qbtrix`;
+        sendTemplateDto.subject = 'Chakravyuh Account created successfully';
+        sendTemplateDto.html = `Hello ${sendTemplateDto.username}, <br> <br> Your account has been created successfully. <br> <br> Regards, <br> Team GDGxIOTA`;
         break;
       case 'login':
-        sendTemplateDto.subject = 'Interacly Account login detected';
-        sendTemplateDto.html = `Hello ${sendTemplateDto.username}, <br> <br> You have successfully logged in. <br> <br> Regards, <br> Team Qbtrix`;
+        sendTemplateDto.subject = 'Chakravyuh Account login detected';
+        sendTemplateDto.html = `Hello ${sendTemplateDto.username}, <br> <br> You have successfully logged in. <br> <br> Regards, <br> Team GDGxIOTA`;
         break;
       default:
         throw new Error('Invalid template type');
