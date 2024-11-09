@@ -21,6 +21,7 @@ import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { TeamDocument } from 'src/teams/teams.schema';
 import { CreateScoreDto } from 'src/scores/dto/create-score.dto';
 import { Score } from 'src/scores/scores.schema';
+import { URoles } from 'src/users/users.schema';
 
 @Injectable()
 export class ChallengesService {
@@ -279,10 +280,13 @@ export class ChallengesService {
     id: string,
     updateChallengeDto: UpdateChallengeDto,
   ): Promise<Challenge> {
+    const user = await this.usersService.findById(userId);
+    const query = {};
+    if (user.role != URoles.superuser) query['creator'] = userId;
     const updatedChallenge = await this.challengeModel
-      .findByIdAndUpdate(
-        id,
-        { ...updateChallengeDto, creator: userId, updatedAt: Date.now() },
+      .findOneAndUpdate(
+        { _id: id, ...query },
+        { ...updateChallengeDto, updatedAt: Date.now() },
         { new: true },
       )
       .exec();
