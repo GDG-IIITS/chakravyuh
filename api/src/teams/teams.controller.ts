@@ -56,14 +56,14 @@ export class TeamsController {
   @Roles(URoles.superuser, URoles.admin)
   @Get('/ids')
   @ApiOperation({ summary: 'Get all team ids' })
-  async findAllIds(): Promise<string[]> {
+  async findAllIds(): Promise<string> {
     return this.teamsService.findAllIds();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Find team by id' })
   async findOne(@Param('id') id: string): Promise<Team> {
-    return this.teamsService.findOne(id);
+    return this.teamsService.findById(id);
   }
 
   @Patch(':id')

@@ -16,6 +16,7 @@ import { Challenge } from './challenges.schema';
 import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
+import { FlagSubmissionDto } from './dto/flag-submission.dto';
 
 @ApiTags('challenges')
 @Controller('challenges')
@@ -37,7 +38,7 @@ export class ChallengesController {
 
   @Roles(URoles.superuser, URoles.admin)
   @Get()
-  @ApiOperation({ summary: 'Get all challenges' })
+  @ApiOperation({ summary: '[ADMIN] Get all challenges' })
   async findAll(): Promise<Challenge[]> {
     return await this.challengesService.findAll();
   }
@@ -50,20 +51,38 @@ export class ChallengesController {
   }
 
   @Get('/me/done')
-  @ApiOperation({ summary: 'Get all challenges done by me' })
+  @ApiOperation({ summary: 'Get all challenges done by participant' })
   async myDone(@Req() req: Request): Promise<Challenge[]> {
     return await this.challengesService.myDone(req['user'].id);
   }
 
   @Get('/me/todo')
-  @ApiOperation({ summary: 'Get next challenge for me' })
+  @ApiOperation({ summary: 'Get next challenge for participant' })
   async myTodo(@Req() req: Request): Promise<Challenge> {
     return await this.challengesService.myTodo(req['user'].id);
   }
 
+  @Post('submit')
+  @ApiOperation({
+    summary: 'Participant can submit the flag they found for a  challenge',
+  })
+  async verifySubmission(
+    @Req() req: Request,
+    @Body() flagSubmission: FlagSubmissionDto,
+  ): Promise<boolean> {
+    return await this.challengesService.verifySubmission(
+      req['user'].id,
+      flagSubmission.challengeId,
+      flagSubmission.flag,
+    );
+  }
+
   @Roles(URoles.superuser, URoles.admin)
   @Put(':id')
-  @ApiOperation({ summary: 'Update challenge by id' })
+  @ApiOperation({
+    summary:
+      '[SUDO] Update challenge by id. Only the creator of challenge, or superuser can do this',
+  })
   async update(
     @Param('id') id: string,
     @Body() updateChallengeDto: UpdateChallengeDto,
@@ -78,7 +97,9 @@ export class ChallengesController {
 
   @Roles(URoles.superuser, URoles.admin)
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete challenge by id' })
+  @ApiOperation({
+    summary: '[SUDO] Delete challenge by id. (creator/superuser)',
+  })
   async remove(
     @Param('id') id: string,
     @Req() req: Request,

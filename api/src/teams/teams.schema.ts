@@ -28,6 +28,9 @@ export class Team {
   @Prop({ required: true, default: 0 })
   score: number;
 
+  @Prop({ required: true, default: true })
+  alive: boolean;
+
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
 
