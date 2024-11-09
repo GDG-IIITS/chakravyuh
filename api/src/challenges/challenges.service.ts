@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import {
   Challenge,
   ChallengeDocument,
+  SubmissionVerification,
   VerificationKind,
 } from './challenges.schema';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
@@ -21,7 +22,7 @@ export class ChallengesService {
     userId: string,
     createChallengeDto: CreateChallengeDto,
   ): Promise<Challenge> {
-    let submissionVerification: SubmissionVerification;
+    let submissionVerification = {};
 
     if (
       createChallengeDto.submissionVerificationMode === VerificationKind.mono
@@ -42,7 +43,7 @@ export class ChallengesService {
       createChallengeDto.submissionVerificationMode === VerificationKind.custom
     ) {
       submissionVerification = {
-        kind: VerificationKind,
+        kind: VerificationKind.custom,
       };
     } else {
       throw new Error('Invalid submissionVerificationMode');
