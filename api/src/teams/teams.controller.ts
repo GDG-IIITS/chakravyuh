@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Roles } from 'src/auth/roles.decorator';
+import { URoles } from 'src/users/users.schema';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { JoinTeamDto } from './dto/join-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
@@ -38,10 +40,18 @@ export class TeamsController {
     return this.teamsService.join(req['user'].id, joinTeamDto);
   }
 
+  @Roles(URoles.superuser, URoles.admin)
   @Get()
   @ApiOperation({ summary: 'Get all teams' })
   async findAll(): Promise<Team[]> {
     return this.teamsService.findAll();
+  }
+
+  @Roles(URoles.superuser, URoles.admin)
+  @Get('/ids')
+  @ApiOperation({ summary: 'Get all team ids' })
+  async findAllIds(): Promise<string[]> {
+    return this.teamsService.findAllIds();
   }
 
   @Get(':id')
