@@ -46,7 +46,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       console.log("login reaches authprovider");
       const response = await axios.post(
         "https://api.chakravyuh.live/auth/login",
-        { email, password }
+        { email, password },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
       console.log("login response", response);
       const data = response.data;

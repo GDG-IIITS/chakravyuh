@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useChallengesContext } from "@/context/challengesContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,76 +16,37 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Label } from "@/components/ui/label";
 import { Search, MoreVertical, Edit, Trash2, Plus } from "lucide-react";
 import ChallengeEditor from "./challenge-editor";
 
-type Challenge = {
-  id: string;
-  title: string;
-  no: number;
-  summary: string;
-  creator: string;
-  maxScore: number;
-  verificationType: string;
-  numHints: number;
-  startTime: string;
-  endTime: string;
-};
-
 export function ChallengesPage() {
-  const [challenges, setChallenges] = useState<Challenge[]>([
-    {
-      id: "1",
-      title: "Web Security Challenge",
-      no: 1,
-      summary: "Find and exploit vulnerabilities in a web application",
-      creator: "John Doe",
-      maxScore: 100,
-      verificationType: "Automatic",
-      numHints: 3,
-      startTime: "2023-06-01T00:00:00Z",
-      endTime: "2023-06-30T23:59:59Z",
-    },
-    // Add more sample challenges here
-  ]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
-    null
-  );
+  const {
+    challenges,
+    searchTerm,
+    isAddModalOpen,
+    isDeleteModalOpen,
+    selectedChallenge,
+    setSearchTerm,
+    openAddModal,
+    closeAddModal,
+    openDeleteModal,
+    closeDeleteModal,
+    handleDeleteChallenge,
+  } = useChallengesContext();
 
   const filteredChallenges = challenges.filter((challenge) =>
     challenge.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleDeleteChallenge = () => {
-    if (selectedChallenge) {
-      setChallenges(challenges.filter((c) => c.id !== selectedChallenge.id));
-    }
-    setIsDeleteModalOpen(false);
-    setSelectedChallenge(null);
-  };
 
   return (
     <div className="container mx-auto p-4">
@@ -100,8 +60,7 @@ export function ChallengesPage() {
             className="pl-8"
           />
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)}>
-          {" "}
+        <Button onClick={openAddModal}>
           <Plus /> Add Challenge
         </Button>
       </div>
@@ -143,20 +102,12 @@ export function ChallengesPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedChallenge(challenge);
-                        setIsAddModalOpen(true);
-                      }}
-                    >
+                    <DropdownMenuItem onClick={() => openAddModal()}>
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedChallenge(challenge);
-                        setIsDeleteModalOpen(true);
-                      }}
+                      onClick={() => openDeleteModal(challenge)}
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
@@ -169,22 +120,18 @@ export function ChallengesPage() {
         </TableBody>
       </Table>
 
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+      <Dialog open={isAddModalOpen} onOpenChange={closeAddModal}>
         <DialogContent className="bg-gray-100 bg-transparent border-none">
           <ChallengeEditor challenge={selectedChallenge} />
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+      <AlertDialog open={isDeleteModalOpen} onOpenChange={closeDeleteModal}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
               Are you sure you want to delete this challenge?
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              challenge.
-            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

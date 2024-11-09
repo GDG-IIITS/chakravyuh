@@ -1,6 +1,10 @@
-// import AddChallenge from "@/components/add-challenge";
+import { ChallengesProvider } from "@/context/challengesContext";
 import { ChallengesPage } from "@/components/challenges-page";
 
-export default function Page() {
-  return <ChallengesPage />;
+export default function App() {
+  return (
+    <ChallengesProvider>
+      <ChallengesPage />
+    </ChallengesProvider>
+  );
 }
