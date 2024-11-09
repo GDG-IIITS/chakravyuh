@@ -16,6 +16,7 @@ import {
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { ScoresService } from 'src/scores/scores.service';
+import { TeamDocument } from 'src/teams/teams.schema';
 
 @Injectable()
 export class ChallengesService {
@@ -92,6 +93,32 @@ export class ChallengesService {
     return flagsMap;
   }
 
+  // TODO: think through all the edge cases
+  async canSubmit(team: TeamDocument, challenge: ChallengeDocument) {
+    // check if team is eligible to submit the challenge
+    if (!challenge) {
+      throw new NotFoundException(`Challenge with given not found`);
+    }
+    const now = Date.now();
+    if (
+      now < challenge.startTime.getTime() ||
+      now > challenge.endTime.getTime()
+    ) {
+      throw new NotAcceptableException('Challenge is not active');
+    }
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+    if (team.score == challenge.no) {
+      throw new NotAcceptableException('Challenge already solved');
+    }
+    if (team.score + 1 !== challenge.no) {
+      throw new NotAcceptableException(
+        'Invalid challenge submission. First solve the previous challenges',
+      );
+    }
+  }
+
   async findAll(): Promise<Challenge[]> {
     return this.challengeModel.find().exec();
   }
@@ -133,33 +160,14 @@ export class ChallengesService {
     flag: string,
   ): Promise<boolean> {
     const challenge = await this.challengeModel.findById(challengeId).exec();
-    if (!challenge) {
-      throw new NotFoundException(`Challenge with ID ${challengeId} not found`);
-    }
-    const now = Date.now();
-    if (
-      now < challenge.startTime.getTime() ||
-      now > challenge.endTime.getTime()
-    ) {
-      throw new NotAcceptableException('Challenge is not active');
-    }
 
     const user = await this.usersService.findById(userId);
     if (!user.team) {
       throw new NotFoundException('User not in a team');
     }
     const team = await this.teamsService.findById(user.team);
-    if (!team) {
-      throw new NotFoundException('Team not found');
-    }
-    if (team.score == challenge.no) {
-      throw new NotAcceptableException('Challenge already solved');
-    }
-    if (team.score + 1 !== challenge.no) {
-      throw new NotAcceptableException(
-        'Invalid challenge submission. First solve the previous challenges',
-      );
-    }
+
+    await this.canSubmit(team, challenge);
 
     if (challenge.submissionVerification.kind === VerificationKind.mono) {
       if (challenge.submissionVerification.flag !== '') {
@@ -222,7 +230,7 @@ export class ChallengesService {
     return false;
   }
 
-  async findOne(id: string): Promise<Challenge> {
+  async findOne(id: string): Promise<ChallengeDocument> {
     const challenge = await this.challengeModel.findById(id).exec();
     if (!challenge) {
       throw new NotFoundException(`Challenge with ID ${id} not found`);

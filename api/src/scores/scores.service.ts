@@ -12,6 +12,7 @@ import { UpdateScoreDto } from './dto/update-score.dto';
 import { Score, ScoreDocument } from './scores.schema';
 import { UsersService } from 'src/users/users.service';
 import { URoles } from 'src/users/users.schema';
+import { TeamsService } from 'src/teams/teams.service';
 
 @Injectable()
 export class ScoresService {
@@ -19,6 +20,7 @@ export class ScoresService {
     @InjectModel(Score.name) private scoreModel: Model<ScoreDocument>,
     private readonly challengeService: ChallengesService,
     private readonly usersService: UsersService,
+    private readonly teamsService: TeamsService,
   ) {}
 
   async create(createScoreDto: CreateScoreDto): Promise<Score> {
@@ -38,6 +40,13 @@ export class ScoresService {
         `Challenge with ID ${createScoreDto.challenge} not found`,
       );
     }
+    const now = Date.now();
+    if (
+      now < challenge.startTime.getTime() ||
+      now > challenge.endTime.getTime()
+    ) {
+      throw new ForbiddenException('Challenge is not active');
+    }
     if (challenge.submissionVerification.kind != VerificationKind.custom) {
       throw new NotFoundException(
         `Challenge with ID ${createScoreDto.challenge}  score cannot be updated via API KEY`,
@@ -46,6 +55,9 @@ export class ScoresService {
     if (apiKey !== challenge.submissionVerification.apiKey) {
       throw new ForbiddenException('Invalid API Key');
     }
+    const team = await this.teamsService.findById(createScoreDto.team);
+    await this.challengeService.canSubmit(team, challenge);
+    team.score += createScoreDto.score;
     return await this.create(createScoreDto);
   }
 
