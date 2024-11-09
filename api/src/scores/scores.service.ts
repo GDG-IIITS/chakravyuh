@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,12 +12,17 @@ import { ChallengesService } from 'src/challenges/challenges.service';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
 import { Score, ScoreDocument } from './scores.schema';
+import { UsersService } from 'src/users/users.service';
+import { URoles } from 'src/users/users.schema';
+import { TeamsService } from 'src/teams/teams.service';
 
 @Injectable()
 export class ScoresService {
   constructor(
     @InjectModel(Score.name) private scoreModel: Model<ScoreDocument>,
-    private readonly challengeService: ChallengesService,
+    @Inject(forwardRef(() => ChallengesService))
+    private readonly usersService: UsersService,
+    private readonly teamsService: TeamsService,
   ) {}
 
   async create(createScoreDto: CreateScoreDto): Promise<Score> {
@@ -23,31 +30,16 @@ export class ScoresService {
     return newScore.save();
   }
 
-  async createViaApiKey(
-    apiKey: string,
-    createScoreDto: CreateScoreDto,
-  ): Promise<Score> {
-    const challenge = await this.challengeService.findOne(
-      createScoreDto.challenge,
-    );
-    if (!challenge) {
-      throw new NotFoundException(
-        `Challenge with ID ${createScoreDto.challenge} not found`,
-      );
-    }
-    if (challenge.submissionVerification.kind != VerificationKind.custom) {
-      throw new NotFoundException(
-        `Challenge with ID ${createScoreDto.challenge}  score cannot be updated via API KEY`,
-      );
-    }
-    if (apiKey !== challenge.submissionVerification.apiKey) {
-      throw new ForbiddenException('Invalid API Key');
-    }
-    return await this.create(createScoreDto);
-  }
 
-  async findAll(): Promise<Score[]> {
-    return this.scoreModel.find().exec();
+  async findAll(userId: string): Promise<Score[]> {
+    // only admins can see all scores
+    // normal users can only see scores(submission entries) for their team
+    const user = await this.usersService.findById(userId);
+    const query = {};
+    if (user.role === URoles.user) {
+      query['team'] = user.team;
+    }
+    return this.scoreModel.find(query).exec();
   }
 
   async findOne(id: string): Promise<Score> {
@@ -56,16 +48,6 @@ export class ScoresService {
       throw new NotFoundException(`Score with ID ${id} not found`);
     }
     return score;
-  }
-
-  async update(id: string, updateScoreDto: UpdateScoreDto): Promise<Score> {
-    const updatedScore = await this.scoreModel
-      .findByIdAndUpdate(id, updateScoreDto, { new: true })
-      .exec();
-    if (!updatedScore) {
-      throw new NotFoundException(`Score with ID ${id} not found`);
-    }
-    return updatedScore;
   }
 
   async remove(id: string): Promise<Score> {

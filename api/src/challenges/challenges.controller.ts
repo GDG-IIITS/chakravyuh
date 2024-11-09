@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Req,
+  Headers,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -17,10 +18,14 @@ import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { FlagSubmissionDto } from './dto/flag-submission.dto';
+import { Public } from 'src/auth/public.decorator';
+import { CreateScoreDto } from 'src/scores/dto/create-score.dto';
+import { Score } from 'src/scores/scores.schema';
 
 @ApiTags('challenges')
 @Controller('challenges')
 export class ChallengesController {
+  scoresService: any;
   constructor(private readonly challengesService: ChallengesService) {}
 
   @Roles(URoles.superuser, URoles.admin)
@@ -75,6 +80,20 @@ export class ChallengesController {
       flagSubmission.challengeId,
       flagSubmission.flag,
     );
+  }
+
+  @Public()
+  @ApiOperation({
+    summary:
+      'Create a score entry associated with a team for a specific challenge using challenge API Key',
+  })
+  @Post('verify')
+  async setScoreViaKey(
+    @Body() createScoreDto: CreateScoreDto,
+    @Headers('Authorization') apiKey: string,
+  ): Promise<Score> {
+    console.log(apiKey);
+    return this.challengesService.createViaApiKey(apiKey, createScoreDto);
   }
 
   @Roles(URoles.superuser, URoles.admin)

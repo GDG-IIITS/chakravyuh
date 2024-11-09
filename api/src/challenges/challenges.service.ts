@@ -1,11 +1,14 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ScoresService } from 'src/scores/scores.service';
 import { TeamsService } from 'src/teams/teams.service';
 import { UsersService } from 'src/users/users.service';
 import {
@@ -15,6 +18,9 @@ import {
 } from './challenges.schema';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
+import { TeamDocument } from 'src/teams/teams.schema';
+import { CreateScoreDto } from 'src/scores/dto/create-score.dto';
+import { Score } from 'src/scores/scores.schema';
 
 @Injectable()
 export class ChallengesService {
@@ -23,6 +29,8 @@ export class ChallengesService {
     private challengeModel: Model<ChallengeDocument>,
     private readonly teamsService: TeamsService,
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => ScoresService))
+    private readonly scoresService: ScoresService,
   ) {}
 
   async create(
@@ -90,6 +98,32 @@ export class ChallengesService {
     return flagsMap;
   }
 
+  // TODO: think through all the edge cases
+  async canSubmit(team: TeamDocument, challenge: ChallengeDocument) {
+    // check if team is eligible to submit the challenge
+    if (!challenge) {
+      throw new NotFoundException(`Challenge with given not found`);
+    }
+    const now = Date.now();
+    if (
+      now < challenge.startTime.getTime() ||
+      now > challenge.endTime.getTime()
+    ) {
+      throw new NotAcceptableException('Challenge is not active');
+    }
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+    if (team.score == challenge.no) {
+      throw new NotAcceptableException('Challenge already solved');
+    }
+    if (team.score + 1 !== challenge.no) {
+      throw new NotAcceptableException(
+        'Invalid challenge submission. First solve the previous challenges',
+      );
+    }
+  }
+
   async findAll(): Promise<Challenge[]> {
     return this.challengeModel.find().exec();
   }
@@ -131,48 +165,65 @@ export class ChallengesService {
     flag: string,
   ): Promise<boolean> {
     const challenge = await this.challengeModel.findById(challengeId).exec();
-    if (!challenge) {
-      throw new NotFoundException(`Challenge with ID ${challengeId} not found`);
-    }
 
     const user = await this.usersService.findById(userId);
     if (!user.team) {
       throw new NotFoundException('User not in a team');
     }
     const team = await this.teamsService.findById(user.team);
-    if (!team) {
-      throw new NotFoundException('Team not found');
-    }
-    if (team.score == challenge.no) {
-      throw new NotAcceptableException('Challenge already solved');
-    }
-    if (team.score + 1 !== challenge.no) {
-      throw new NotAcceptableException(
-        'Invalid challenge submission. First solve the previous challenges',
-      );
-    }
+
+    await this.canSubmit(team, challenge);
 
     if (challenge.submissionVerification.kind === VerificationKind.mono) {
+      if (challenge.submissionVerification.flag !== '') {
+        throw new ForbiddenException(
+          'This challenge is not ready for evaluation. Please contact admins!',
+        );
+      }
       if (flag === challenge.submissionVerification.flag) {
         team.score += 1;
         await team.save();
+        await this.scoresService.create({
+          challenge: challenge.id,
+          team: team.id,
+          score: 1,
+        });
         return true;
+      } else {
+        await this.scoresService.create({
+          challenge: challenge.id,
+          team: team.id,
+          score: 0,
+        });
+        return false;
       }
     } else if (
       challenge.submissionVerification.kind === VerificationKind.unique
     ) {
+      if (!challenge.submissionVerification.flags.has(user.team.toString())) {
+        throw new ForbiddenException(
+          'This challenge is not ready for evaluation. Please contact admins!',
+        );
+      }
       if (
-        challenge.submissionVerification.flags.has(user.team.toString()) &&
         flag ===
-          challenge.submissionVerification.flags.get(user.team.toString())
+        challenge.submissionVerification.flags.get(user.team.toString())
       ) {
         team.score += 1;
         await team.save();
+        await this.scoresService.create({
+          challenge: challenge.id,
+          team: team.id,
+          score: 1,
+        });
         return true;
       } else {
-        throw new ForbiddenException(
-          'This challene is not ready for evaluation. Please contact admins!',
-        );
+        await this.scoresService.create({
+          challenge: challenge.id,
+          team: team.id,
+          score: 0,
+        });
+        return false;
       }
     } else if (
       challenge.submissionVerification.kind === VerificationKind.custom
@@ -184,7 +235,38 @@ export class ChallengesService {
     return false;
   }
 
-  async findOne(id: string): Promise<Challenge> {
+  async createViaApiKey(
+    apiKey: string,
+    createScoreDto: CreateScoreDto,
+  ): Promise<Score> {
+    const challenge = await this.findOne(createScoreDto.challenge);
+    if (!challenge) {
+      throw new NotFoundException(
+        `Challenge with ID ${createScoreDto.challenge} not found`,
+      );
+    }
+    const now = Date.now();
+    if (
+      now < challenge.startTime.getTime() ||
+      now > challenge.endTime.getTime()
+    ) {
+      throw new ForbiddenException('Challenge is not active');
+    }
+    if (challenge.submissionVerification.kind != VerificationKind.custom) {
+      throw new NotFoundException(
+        `Challenge with ID ${createScoreDto.challenge}  score cannot be updated via API KEY`,
+      );
+    }
+    if (apiKey !== challenge.submissionVerification.apiKey) {
+      throw new ForbiddenException('Invalid API Key');
+    }
+    const team = await this.teamsService.findById(createScoreDto.team);
+    await this.canSubmit(team, challenge);
+    team.score += createScoreDto.score;
+    return await this.scoresService.create(createScoreDto);
+  }
+
+  async findOne(id: string): Promise<ChallengeDocument> {
     const challenge = await this.challengeModel.findById(id).exec();
     if (!challenge) {
       throw new NotFoundException(`Challenge with ID ${id} not found`);

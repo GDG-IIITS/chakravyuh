@@ -5,6 +5,7 @@ export class ICreateUserDto {
   role?: string;
   ug: number;
   emailVerified?: boolean;
+  isActive?: boolean;
 }
 
 export class AdminCreateUserDto {

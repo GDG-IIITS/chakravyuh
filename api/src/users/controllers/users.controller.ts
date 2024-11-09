@@ -22,19 +22,19 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @ApiOperation({ summary: '[ADMIN] Create a user' })
+  @ApiOperation({ summary: '[SUDO] Create a user' })
   async create(@Body() createUserDto: ICreateUserDto): Promise<UserDocument> {
     return this.usersService.icreate(createUserDto);
   }
 
   @Get()
-  @ApiOperation({ summary: '[ADMIN] Get all users' })
+  @ApiOperation({ summary: '[SUDO] Get all users' })
   async findAll(): Promise<UserDocument[]> {
     return this.usersService.findAll();
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: '[ADMIN] Update a user' })
+  @ApiOperation({ summary: '[SUDO] Update a user' })
   update(
     @Param('id') id: string,
     @Body() updateUserDto: IUpdateUserDto,
@@ -43,7 +43,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: '[ADMIN] Delete a user' })
+  @ApiOperation({ summary: '[SUDO] Delete a user' })
   remove(@Param('id') id: string): Promise<UserDocument> {
     return this.usersService.removeUser(id);
   }
