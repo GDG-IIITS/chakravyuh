@@ -22,7 +22,7 @@ export class User {
   @Prop({ required: true, index: true, unique: true })
   email: string;
 
-  @Prop({ required: true, index: true })
+  @Prop({ required: true })
   ug: number;
 
   @Prop({ required: true })
