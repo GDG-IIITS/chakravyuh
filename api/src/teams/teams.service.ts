@@ -87,11 +87,11 @@ export class TeamsService {
   async findAllIds(): Promise<string> {
     const ids = await this.teamsModel.find().select('_id').exec();
 
-    const idStrings = ids.map((doc: { _id: string }) => doc._id.toString());
+    const idStrings = ids.map((doc: { _id: any }) => doc._id.toString());
     return idStrings.join('\n');
   }
 
-  async findOne(id: string): Promise<Team> {
+  async findById(id: string): Promise<TeamDocument> {
     const team = await this.teamsModel.findById(id);
     if (!team) {
       throw new NotFoundException(`Team with ID ${id} not found`);
