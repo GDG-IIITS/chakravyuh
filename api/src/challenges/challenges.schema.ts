@@ -29,7 +29,7 @@ export const SubmissionVerificationSchema = SchemaFactory.createForClass(
 );
 
 @Schema({ _id: false })
-export class MonoVerification extends SubmissionVerification {
+export class MonoVerification {
   kind!: VerificationKind.mono;
 
   @Prop({ required: true, default: '' })
@@ -37,7 +37,7 @@ export class MonoVerification extends SubmissionVerification {
 }
 
 @Schema({ _id: false })
-export class UniqueVerification extends SubmissionVerification {
+export class UniqueVerification {
   kind!: VerificationKind.unique;
 
   @Prop({ required: true, default: {} })
@@ -46,7 +46,7 @@ export class UniqueVerification extends SubmissionVerification {
 }
 
 @Schema({ _id: false })
-export class CustomVerification extends SubmissionVerification {
+export class CustomVerification {
   kind!: VerificationKind.custom;
 
   @Prop({ required: true, default: generateApiKey })
