@@ -9,13 +9,13 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import { Roles } from 'src/auth/roles.decorator';
 import { URoles } from 'src/users/users.schema';
 import { Challenge } from './challenges.schema';
 import { ChallengesService } from './challenges.service';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
-import { Request } from 'express';
 
 @ApiTags('challenges')
 @Controller('challenges')
@@ -35,6 +35,7 @@ export class ChallengesController {
     );
   }
 
+  @Roles(URoles.superuser, URoles.admin)
   @Get()
   @ApiOperation({ summary: 'Get all challenges' })
   async findAll(): Promise<Challenge[]> {
@@ -46,6 +47,18 @@ export class ChallengesController {
   @ApiOperation({ summary: 'Find challenge by id' })
   async findOne(@Param('id') id: string): Promise<Challenge> {
     return await this.challengesService.findOne(id);
+  }
+
+  @Get('/me/done')
+  @ApiOperation({ summary: 'Get all challenges done by me' })
+  async myDone(@Req() req: Request): Promise<Challenge[]> {
+    return await this.challengesService.myDone(req['user'].id);
+  }
+
+  @Get('/me/todo')
+  @ApiOperation({ summary: 'Get next challenge for me' })
+  async myTodo(@Req() req: Request): Promise<Challenge> {
+    return await this.challengesService.myTodo(req['user'].id);
   }
 
   @Roles(URoles.superuser, URoles.admin)

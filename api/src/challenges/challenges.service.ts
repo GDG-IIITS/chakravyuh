@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TeamsService } from 'src/teams/teams.service';
+import { UsersService } from 'src/users/users.service';
 import {
   Challenge,
   ChallengeDocument,
@@ -20,6 +21,7 @@ export class ChallengesService {
     @InjectModel(Challenge.name)
     private challengeModel: Model<ChallengeDocument>,
     private readonly teamsService: TeamsService,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(
@@ -89,6 +91,37 @@ export class ChallengesService {
 
   async findAll(): Promise<Challenge[]> {
     return this.challengeModel.find().exec();
+  }
+
+  async myDone(userId: string): Promise<Challenge[]> {
+    const team = await this.teamsService.my(userId);
+
+    const challengeIds = Array.from({ length: team.score }, (_, i) => i + 1);
+
+    console.log(challengeIds);
+    return this.challengeModel
+      .find({ no: { $in: challengeIds } })
+      .select('-submissionVerification -hints')
+      .exec();
+  }
+
+  async myTodo(userId: string): Promise<Challenge> {
+    const team = await this.teamsService.my(userId);
+
+    const nextChallenge = await this.challengeModel
+      .findOne({ no: team.score + 1 })
+      .select('-submissionVerification')
+      .exec();
+
+    const hints = nextChallenge.hints.filter((hint) => hint.show);
+
+    if (!nextChallenge) {
+      throw new NotFoundException('No more challenges');
+    }
+
+    nextChallenge.hints = hints;
+
+    return nextChallenge;
   }
 
   async findOne(id: string): Promise<Challenge> {

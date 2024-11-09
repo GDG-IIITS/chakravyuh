@@ -68,11 +68,23 @@ export class TeamsService {
     return team;
   }
 
+  async my(userId: string): Promise<Team> {
+    const user = await this.userService.findById(userId);
+    if (!user.team) {
+      throw new NotFoundException('User not in a team');
+    }
+    const team = await this.teamsModel.findById(user.team);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+    return team;
+  }
+
   async findAll(): Promise<Team[]> {
     return this.teamsModel.find().exec();
   }
 
-  async findAllIds(): Promise<string[]> {
+  async findAllIds(): Promise<string> {
     const ids = await this.teamsModel.find().select('_id').exec();
 
     const idStrings = ids.map((doc: { _id: string }) => doc._id.toString());

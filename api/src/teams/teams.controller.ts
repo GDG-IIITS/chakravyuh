@@ -40,6 +40,12 @@ export class TeamsController {
     return this.teamsService.join(req['user'].id, joinTeamDto);
   }
 
+  @Get('/my')
+  @ApiOperation({ summary: 'Get my team' })
+  async my(@Req() req: Request): Promise<Team> {
+    return this.teamsService.my(req['user'].id);
+  }
+
   @Roles(URoles.superuser, URoles.admin)
   @Get()
   @ApiOperation({ summary: 'Get all teams' })
