@@ -4,6 +4,7 @@ import { ScoresController } from './scores.controller';
 import { Score, ScoreSchema } from './scores.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ChallengesModule } from 'src/challenges/challenges.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ChallengesModule } from 'src/challenges/challenges.module';
       },
     ]),
     ChallengesModule,
+    UsersModule,
   ],
   controllers: [ScoresController],
   providers: [ScoresService],
