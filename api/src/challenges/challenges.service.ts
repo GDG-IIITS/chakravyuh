@@ -8,8 +8,12 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CreateScoreDto } from 'src/scores/dto/create-score.dto';
+import { Score } from 'src/scores/scores.schema';
 import { ScoresService } from 'src/scores/scores.service';
+import { TeamDocument } from 'src/teams/teams.schema';
 import { TeamsService } from 'src/teams/teams.service';
+import { URoles } from 'src/users/users.schema';
 import { UsersService } from 'src/users/users.service';
 import {
   Challenge,
@@ -18,10 +22,6 @@ import {
 } from './challenges.schema';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
-import { TeamDocument } from 'src/teams/teams.schema';
-import { CreateScoreDto } from 'src/scores/dto/create-score.dto';
-import { Score } from 'src/scores/scores.schema';
-import { URoles } from 'src/users/users.schema';
 
 @Injectable()
 export class ChallengesService {
@@ -132,9 +132,7 @@ export class ChallengesService {
   async myDone(userId: string): Promise<Challenge[]> {
     const team = await this.teamsService.my(userId);
 
-    const challengeIds = Array.from({ length: team.score }, (_, i) => i + 1);
-
-    console.log(challengeIds);
+    const challengeIds = Array.from({ length: team.score + 1 }, (_, i) => i);
     return this.challengeModel
       .find({ no: { $in: challengeIds } })
       .select('-submissionVerification -hints')
@@ -176,7 +174,7 @@ export class ChallengesService {
     await this.canSubmit(team, challenge);
 
     if (challenge.submissionVerification.kind === VerificationKind.mono) {
-      if (challenge.submissionVerification.flag !== '') {
+      if (challenge.submissionVerification.flag === '') {
         throw new ForbiddenException(
           'This challenge is not ready for evaluation. Please contact admins!',
         );
