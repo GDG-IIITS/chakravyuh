@@ -23,12 +23,18 @@ export class SubmissionVerification {
   kind!: string;
 }
 
+export const SubmissionVerificationSchema = SchemaFactory.createForClass(
+  SubmissionVerification,
+);
+
+@Schema({ _id: false })
 export class MonoVerification extends SubmissionVerification {
   kind!: VerificationKind.mono;
   @Prop({ required: true, default: '' })
   flag: string;
 }
 
+@Schema({ _id: false })
 export class UniqueVerification extends SubmissionVerification {
   kind!: VerificationKind.unique;
   @Prop({ required: true, default: new Map() })
@@ -36,16 +42,19 @@ export class UniqueVerification extends SubmissionVerification {
   // map between team id and flag
 }
 
+@Schema({ _id: false })
 export class Custom extends SubmissionVerification {
   kind = VerificationKind.custom;
   @Prop({ required: true, default: generateApiKey })
   apiKey: string;
 }
 
+@Schema({ _id: false })
 export class Hint {
   text: string;
   show: boolean;
 }
+
 @Schema()
 export class Challenge {
   @Prop({ required: true })
@@ -75,7 +84,10 @@ export class Challenge {
   @Prop({ required: false })
   hints: Hint[];
 
-  @Prop({ required: true, type: SubmissionVerification })
+  @Prop({
+    required: true,
+    type: SubmissionVerificationSchema,
+  })
   submissionVerification: MonoVerification | UniqueVerification | Custom;
 
   @Prop({ required: true, default: Date.now })
