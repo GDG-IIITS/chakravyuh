@@ -45,6 +45,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
+    "csv-parse": "^5.5.6",
     "dotenv": "^16.4.5",
     "dropbox": "^10.34.0",
     "googleapis": "^142.0.0",
