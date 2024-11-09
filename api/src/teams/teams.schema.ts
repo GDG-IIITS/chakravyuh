@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, ObjectId } from 'mongoose';
+import { User } from 'src/users/users.schema';
 
 export function generateJoinCode() {
   return (
@@ -16,10 +17,10 @@ export class Team {
   @Prop({ required: true })
   ug: number; // 1,2,3,4
 
-  @Prop({ required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   lead: string;
 
-  @Prop({ required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   members: string[];
 
   @Prop({ required: true, default: generateJoinCode })
