@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -122,6 +123,65 @@ export class ChallengesService {
     nextChallenge.hints = hints;
 
     return nextChallenge;
+  }
+
+  async verifySubmission(
+    userId: string,
+    challengeId: string,
+    flag: string,
+  ): Promise<boolean> {
+    const challenge = await this.challengeModel.findById(challengeId).exec();
+    if (!challenge) {
+      throw new NotFoundException(`Challenge with ID ${challengeId} not found`);
+    }
+
+    const user = await this.usersService.findById(userId);
+    if (!user.team) {
+      throw new NotFoundException('User not in a team');
+    }
+    const team = await this.teamsService.findById(user.team);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+    if (team.score == challenge.no) {
+      throw new NotAcceptableException('Challenge already solved');
+    }
+    if (team.score + 1 !== challenge.no) {
+      throw new NotAcceptableException(
+        'Invalid challenge submission. First solve the previous challenges',
+      );
+    }
+
+    if (challenge.submissionVerification.kind === VerificationKind.mono) {
+      if (flag === challenge.submissionVerification.flag) {
+        team.score += 1;
+        await team.save();
+        return true;
+      }
+    } else if (
+      challenge.submissionVerification.kind === VerificationKind.unique
+    ) {
+      if (
+        challenge.submissionVerification.flags.has(user.team.toString()) &&
+        flag ===
+          challenge.submissionVerification.flags.get(user.team.toString())
+      ) {
+        team.score += 1;
+        await team.save();
+        return true;
+      } else {
+        throw new ForbiddenException(
+          'This challene is not ready for evaluation. Please contact admins!',
+        );
+      }
+    } else if (
+      challenge.submissionVerification.kind === VerificationKind.custom
+    ) {
+      throw new ForbiddenException(
+        'Submission of flag inside the terminal is not supported for this challenge. Once you correctly complete the challenge, you will automatically be awarded the points',
+      );
+    }
+    return false;
   }
 
   async findOne(id: string): Promise<Challenge> {
