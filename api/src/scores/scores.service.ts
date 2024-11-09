@@ -30,7 +30,6 @@ export class ScoresService {
     return newScore.save();
   }
 
-
   async findAll(userId: string): Promise<Score[]> {
     // only admins can see all scores
     // normal users can only see scores(submission entries) for their team

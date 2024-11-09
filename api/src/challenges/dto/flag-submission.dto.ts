@@ -5,7 +5,7 @@ export class FlagSubmissionDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  challengeId: string;
+  challengeNo: number;
 
   @ApiProperty()
   @IsString()

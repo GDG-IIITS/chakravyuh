@@ -160,10 +160,12 @@ export class ChallengesService {
 
   async verifySubmission(
     userId: string,
-    challengeId: string,
+    challengeNo: number,
     flag: string,
   ): Promise<boolean> {
-    const challenge = await this.challengeModel.findById(challengeId).exec();
+    const challenge = await this.challengeModel
+      .findOne({ no: challengeNo })
+      .exec();
 
     const user = await this.usersService.findById(userId);
     if (!user.team) {
@@ -263,6 +265,24 @@ export class ChallengesService {
     await this.canSubmit(team, challenge);
     team.score += createScoreDto.score;
     return await this.scoresService.create(createScoreDto);
+  }
+
+  async markDone(
+    userId: string,
+    createScoreDto: CreateScoreDto,
+  ): Promise<boolean> {
+    const team = await this.teamsService.findById(createScoreDto.team);
+    const challenge = await this.findOne(createScoreDto.challenge);
+    if (challenge.creator != userId) {
+      throw new ForbiddenException(
+        'Only the creator of the challenge can mark it as done for a participant. Contact superuser for help!',
+      );
+    }
+    await this.canSubmit(team, challenge);
+    team.score += createScoreDto.score;
+    await team.save();
+    await this.scoresService.create(createScoreDto);
+    return true;
   }
 
   async findOne(id: string): Promise<ChallengeDocument> {
