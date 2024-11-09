@@ -16,9 +16,9 @@ import {
 } from "@/components/ui/sidebar";
 
 const sidebarItems = [
-  { name: "Users", icon: Users, href: "users" },
-  { name: "Challenges", icon: Trophy, href: "challenges" },
-  { name: "Teams", icon: Users2, href: "teams" },
+  { name: "Users", icon: Users, href: "/admin/users" },
+  { name: "Challenges", icon: Trophy, href: "/admin/challenges" },
+  { name: "Teams", icon: Users2, href: "/admin/teams" },
 ];
 
 export function AppSidebar() {
