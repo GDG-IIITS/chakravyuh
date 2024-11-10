@@ -45,8 +45,12 @@ type Challenge = {
 };
 
 export default function ChallengeEditor() {
-  const { selectedChallenge, addChallenge, setSelectedChallenge } =
-    useChallengesContext();
+  const {
+    selectedChallenge,
+    updateChallenge,
+    addChallenge,
+    setSelectedChallenge,
+  } = useChallengesContext();
 
   const [verificationMode, setVerificationMode] = useState("mono");
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
@@ -89,7 +93,7 @@ export default function ChallengeEditor() {
       if (selectedChallenge) {
         // Update existing challenge
         console.log("Updating challenge", challengeData);
-        // await updateChallenge(challengeData);
+        await updateChallenge(selectedChallenge.id, challengeData);
       } else {
         // Add new challenge
         console.log("Adding challenge", challengeData);
@@ -157,7 +161,7 @@ export default function ChallengeEditor() {
         </CardDescription>
       </CardHeader>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(event) => event.preventDefault()}>
         <CardContent className="space-y-4">
           <div className="min-h-[300px]">
             {currentPage === 1 && (
@@ -354,7 +358,7 @@ export default function ChallengeEditor() {
               Next
             </Button>
           ) : (
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
               {isLoading
                 ? "Saving..."
                 : selectedChallenge

@@ -63,7 +63,8 @@ interface ChallengesContextType {
   closeDeleteModal: () => void;
   handleDeleteChallenge: () => void;
   setSelectedChallenge: (challenge: Challenge | null) => void;
-  addChallenge: (challenge: Omit<Challenge, "id">) => void;
+  addChallenge: (challenge: Omit<Challenge, "id">) => Promise<void>;
+  updateChallenge: (id: string, challenge: Partial<Challenge>) => Promise<void>;
 }
 
 const ChallengesContext = createContext<ChallengesContextType | undefined>(
@@ -115,7 +116,7 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
 
   const handleDeleteChallenge = () => {
     if (selectedChallenge) {
-      setChallenges(challenges.filter((c) => c.id !== selectedChallenge.id));
+      setChallenges(challenges.filter((c) => c._id !== selectedChallenge.id));
     }
     closeDeleteModal();
   };
@@ -139,15 +140,45 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
         }
       );
 
-      console.log("Hi");
-      console.log(response.data);
-
-      setChallenges([
-        ...challenges,
-        { ...response.data, id: String(response.data.no) },
-      ]); // Add challenge to state
+      setChallenges([...challenges, response.data]);
     } catch (error) {
       console.error("Error adding challenge:", error);
+      throw error;
+    }
+  };
+
+  const updateChallenge = async (id: string, challenge: Partial<Challenge>) => {
+    try {
+      // Prepare the update payload
+      const updatePayload = {
+        ...challenge,
+        submissionVerification: {
+          kind: challenge.submissionVerificationMode,
+          flag: challenge.flag,
+        },
+      };
+
+      // Remove fields that shouldn't be sent in the update
+      delete updatePayload.submissionVerificationMode;
+      delete updatePayload.flag;
+      delete updatePayload.id;
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/challenges/${id}`,
+        updatePayload,
+        {
+          withCredentials: true,
+        }
+      );
+
+      // Update the challenges state
+      setChallenges(challenges.map((c) => (c._id === id ? response.data : c)));
+
+      // Close the modal
+      closeAddModal();
+    } catch (error) {
+      console.error("Error updating challenge:", error);
+      throw error;
     }
   };
 
@@ -168,6 +199,7 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
         handleDeleteChallenge,
         setSelectedChallenge,
         addChallenge,
+        updateChallenge,
       }}
     >
       {children}
