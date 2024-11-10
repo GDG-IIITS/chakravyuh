@@ -30,7 +30,6 @@ type Hint = {
   show: boolean;
 };
 
-<<<<<<< HEAD
 export default function ChallengeEditor() {
   const { selectedChallenge, addChallenge, setSelectedChallenge } =
     useChallengesContext();
@@ -55,20 +54,9 @@ export default function ChallengeEditor() {
       );
     }
   }, [selectedChallenge]);
-=======
-export default function ChallengeEditor(challenge: any) {
-  const [verificationMode, setVerificationMode] = useState("Mono");
-  const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hints, setHints] = useState([{ text: "", show: false }]);
-  const totalPages = 4;
-  console.log(challenge);
->>>>>>> origin/main
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-<<<<<<< HEAD
     setIsLoading(true);
 
     if (selectedChallenge) {
@@ -103,17 +91,12 @@ export default function ChallengeEditor(challenge: any) {
       });
     }
     setIsLoading(false);
-=======
-    // Handle form submission
-    setIsLoading(true);
->>>>>>> origin/main
   };
 
   const addHint = useCallback(() => {
     setHints((prevHints) => [...prevHints, { text: "", show: false }]);
   }, []);
 
-<<<<<<< HEAD
   const deleteHint = useCallback((index) => {
     setHints((prevHints) => prevHints.filter((_, i) => i !== index));
   }, []);
@@ -125,17 +108,6 @@ export default function ChallengeEditor(challenge: any) {
       return updatedHints;
     });
   }, []);
-=======
-  const deleteHint = (index: any) => {
-    setHints(hints.filter((_, i) => i !== index));
-  };
-
-  const updateHint = (index: any, newHint: any) => {
-    const newHints = [...hints];
-    newHints[index] = newHint;
-    setHints(newHints);
-  };
->>>>>>> origin/main
 
   return (
     <Card className="w-full max-w-2xl mx-auto py">
@@ -297,13 +269,6 @@ export default function ChallengeEditor(challenge: any) {
                     }
                   />
                 )}
-<<<<<<< HEAD
-                {verificationMode === "custom" && (
-                  <ApiKeyField
-                    isApiKeyVisible={isApiKeyVisible}
-                    onToggle={() => setIsApiKeyVisible(!isApiKeyVisible)}
-                  />
-=======
                 {verificationMode === "Custom" && (
                   <div className="mb-2">
                     <Label className="ml-1" htmlFor="apiKey">
@@ -338,7 +303,6 @@ export default function ChallengeEditor(challenge: any) {
                       </Button>
                     </div>
                   </div>
->>>>>>> origin/main
                 )}
               </>
             )}
