@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Plus, Trash } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 import { useChallengesContext } from "@/context/challengesContext";
 
 type Hint = {
@@ -45,20 +44,15 @@ type Challenge = {
 };
 
 export default function ChallengeEditor() {
-  const {
-    selectedChallenge,
-    updateChallenge,
-    addChallenge,
-    setSelectedChallenge,
-  } = useChallengesContext();
+  const { selectedChallenge, updateChallenge, addChallenge } =
+    useChallengesContext();
 
   const [verificationMode, setVerificationMode] = useState("mono");
-  const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hints, setHints] = useState<Hint[]>([{ text: "", show: false }]);
   const [tags, setTags] = useState<string[]>([]);
-  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [challenge, setChallenge] = useState<Challenge>();
 
   useEffect(() => {
     if (selectedChallenge) {
@@ -80,8 +74,10 @@ export default function ChallengeEditor() {
 
     setIsLoading(true);
     try {
+      console.log(challenge);
       const challengeData = {
         ...challenge,
+
         tags: tags.filter((tag) => tag.trim() !== ""), // Remove empty tags
         numHints: hints.filter((hint) => hint.text.trim() !== "").length, // Count non-empty hints
         submissionVerificationMode: verificationMode,
@@ -172,7 +168,9 @@ export default function ChallengeEditor() {
                   placeholder="Enter challenge title"
                   value={challenge?.title || ""}
                   required
-                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  onChange={(e: any) =>
+                    handleInputChange("title", e.target.value)
+                  }
                 />
                 <InputField
                   label="Number"
@@ -181,7 +179,7 @@ export default function ChallengeEditor() {
                   placeholder="Enter challenge number"
                   value={challenge?.no || ""}
                   required
-                  onChange={(e) =>
+                  onChange={(e: any) =>
                     handleInputChange("no", Number(e.target.value))
                   }
                 />
@@ -190,7 +188,9 @@ export default function ChallengeEditor() {
                   id="challengeSummary"
                   placeholder="Enter challenge summary"
                   value={challenge?.summary || ""}
-                  onChange={(e) => handleInputChange("summary", e.target.value)}
+                  onChange={(e: any) =>
+                    handleInputChange("summary", e.target.value)
+                  }
                 />
                 <InputField
                   label="Max Score"
@@ -199,7 +199,7 @@ export default function ChallengeEditor() {
                   placeholder="Enter max score"
                   value={challenge?.maxScore || ""}
                   required
-                  onChange={(e) =>
+                  onChange={(e: any) =>
                     handleInputChange("maxScore", Number(e.target.value))
                   }
                 />
@@ -214,28 +214,30 @@ export default function ChallengeEditor() {
                   placeholder="Enter challenge description"
                   rows={10}
                   value={challenge?.description || ""}
-                  onChange={(e) =>
+                  onChange={(e: any) =>
                     handleInputChange("description", e.target.value)
                   }
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <InputField
                     label="Start Time"
+                    placeholder={new Date().toISOString()}
                     id="startTime"
                     type="datetime-local"
                     value={challenge?.startTime || ""}
                     required
-                    onChange={(e) =>
+                    onChange={(e: any) =>
                       handleInputChange("startTime", e.target.value)
                     }
                   />
                   <InputField
                     label="End Time"
                     id="endTime"
+                    placeholder={new Date().toISOString()}
                     type="datetime-local"
                     value={challenge?.endTime || ""}
                     required
-                    onChange={(e) =>
+                    onChange={(e: any) =>
                       handleInputChange("endTime", e.target.value)
                     }
                   />
@@ -258,7 +260,9 @@ export default function ChallengeEditor() {
                     placeholder="Enter flag"
                     value={challenge?.flag || ""}
                     required
-                    onChange={(e) => handleInputChange("flag", e.target.value)}
+                    onChange={(e: any) =>
+                      handleInputChange("flag", e.target.value)
+                    }
                   />
                 )}
                 {verificationMode === "unique" && (
@@ -269,7 +273,9 @@ export default function ChallengeEditor() {
                     placeholder="Paste CSV text"
                     rows={10}
                     required
-                    onChange={(e) => handleInputChange("csv", e.target.value)}
+                    onChange={(e: any) =>
+                      handleInputChange("csv", e.target.value)
+                    }
                   />
                 )}
               </>
@@ -284,7 +290,9 @@ export default function ChallengeEditor() {
                       <div key={index} className="flex items-center space-x-2">
                         <Textarea
                           value={hint.text}
-                          onChange={(e) => updateHint(index, e.target.value)}
+                          onChange={(e: any) =>
+                            updateHint(index, e.target.value)
+                          }
                           placeholder="Enter hint text"
                         />
                         <Button
@@ -314,7 +322,9 @@ export default function ChallengeEditor() {
                       <div key={index} className="flex items-center space-x-2">
                         <Input
                           value={tag}
-                          onChange={(e) => updateTag(index, e.target.value)}
+                          onChange={(e: any) =>
+                            updateTag(index, e.target.value)
+                          }
                           placeholder="Enter tag"
                         />
                         <Button

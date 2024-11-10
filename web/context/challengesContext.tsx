@@ -11,19 +11,19 @@ import axios from "axios";
 
 type Challenge = {
   id: string;
-  title: string;
-  description: string;
-  tags: string[];
-  no: number;
-  summary: string;
+  title?: string;
+  description?: string;
+  tags?: string[];
+  no?: number;
+  summary?: string;
   creator: string;
-  maxScore: number;
+  maxScore?: number;
   submissionVerificationMode: string;
-  flag: string;
-  csv: string;
+  flag?: string;
+  csv?: string;
   numHints: number;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
 };
 
 type ChallengeReturned = {
@@ -63,7 +63,7 @@ interface ChallengesContextType {
   closeDeleteModal: () => void;
   handleDeleteChallenge: () => void;
   setSelectedChallenge: (challenge: Challenge | null) => void;
-  addChallenge: (challenge: Omit<Challenge, "id">) => Promise<void>;
+  addChallenge: (challenge: Omit<Challenge, "id" | "creator">) => Promise<void>;
   updateChallenge: (id: string, challenge: Partial<Challenge>) => Promise<void>;
   deleteChallenge: (id: string) => Promise<void>;
 }
@@ -144,7 +144,7 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addChallenge = async (challenge: Omit<Challenge, "id">) => {
+  const addChallenge = async (challenge: Omit<Challenge, "id" | "creator">) => {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/challenges`,
