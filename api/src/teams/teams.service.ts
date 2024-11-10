@@ -45,7 +45,7 @@ export class TeamsService {
       throw new ForbiddenException('User already in a team');
     }
 
-    if (team.members.length >= appConfig.maxTeamSize - 1) {
+    if (team.members && team.members.length >= appConfig.maxTeamSize - 1) {
       throw new ForbiddenException('Team is full');
     }
 
