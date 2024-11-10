@@ -44,6 +44,8 @@ export class TeamsController {
   @ApiOperation({ summary: 'Get teams leaderboard' })
   async leaderboard(@Req() req: Request): Promise<Team[]> {
     const ug = req['user'].ug;
+    console.log('%%%%%%%%%%%%%%Leaderboard%%%%%%%%%%%%%%');
+    console.log(ug);
     return this.teamsService.getLeaderboard(ug);
   }
 
