@@ -69,12 +69,6 @@ export class TeamsController {
     return this.teamsService.findAllIds();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Find team by id' })
-  async findOne(@Param('id') id: string): Promise<Team> {
-    return this.teamsService.findById(id);
-  }
-
   @Patch(':id')
   @ApiOperation({ summary: 'Update team by id' })
   async update(
