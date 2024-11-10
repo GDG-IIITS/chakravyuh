@@ -81,7 +81,7 @@ export class ChallengesService {
       submissionVerification,
     });
 
-    return await newChallenge.save();
+    return await (await newChallenge.save()).populate('creator', 'fullName');
   }
 
   private parseStrToMap(str: string): Map<string, string> {
@@ -126,7 +126,7 @@ export class ChallengesService {
   }
 
   async findAll(): Promise<Challenge[]> {
-    return this.challengeModel.find().exec();
+    return this.challengeModel.find().populate('creator', 'fullName').exec();
   }
 
   async myDone(userId: string): Promise<Challenge[]> {
@@ -136,6 +136,7 @@ export class ChallengesService {
     return this.challengeModel
       .find({ no: { $in: challengeIds } })
       .select('-submissionVerification -hints')
+      .populate('creator', 'fullName')
       .exec();
   }
 
@@ -145,6 +146,7 @@ export class ChallengesService {
     const nextChallenge = await this.challengeModel
       .findOne({ no: team.score + 1 })
       .select('-submissionVerification')
+      .populate('creator', 'fullName')
       .exec();
 
     if (!nextChallenge) {

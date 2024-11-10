@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { initDiscriminators } from 'src/utils/disc';
 
 export enum VerificationKind {
@@ -61,7 +61,7 @@ export class Hint {
 
 @Schema()
 export class Challenge {
-  @Prop({ required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   creator: string; // user id of creator
 
   @Prop({ required: true, unique: true })
