@@ -11,7 +11,6 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { JoinTeamDto } from './dto/join-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { Team, TeamDocument } from './teams.schema';
-import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class TeamsService {
@@ -110,13 +109,6 @@ export class TeamsService {
       .sort({ score: -1 })
       .populate('lead', 'fullName email')
       .exec();
-  }
-
-  async findAllIds(): Promise<string> {
-    const ids = await this.teamsModel.find().select('_id').exec();
-
-    const idStrings = ids.map((doc: { _id: any }) => doc._id.toString());
-    return idStrings.join('\n');
   }
 
   async findById(id: string): Promise<TeamDocument> {

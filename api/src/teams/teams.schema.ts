@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, ObjectId } from 'mongoose';
-import { User } from 'src/users/users.schema';
+import mongoose, { HydratedDocument } from 'mongoose';
 
 export function generateJoinCode() {
   return (
