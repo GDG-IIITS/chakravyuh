@@ -102,6 +102,10 @@ export class TeamsService {
       .exec();
   }
 
+  async findOnlyIds(): Promise<Team[]> {
+    return this.teamsModel.find().select('_id').exec();
+  }
+
   async getLeaderboard(ug: number): Promise<Team[]> {
     return this.teamsModel
       .find({
