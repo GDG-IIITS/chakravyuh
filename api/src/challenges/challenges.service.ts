@@ -147,11 +147,11 @@ export class ChallengesService {
       .select('-submissionVerification')
       .exec();
 
-    const hints = nextChallenge.hints.filter((hint) => hint.show);
-
     if (!nextChallenge) {
       throw new NotFoundException('No more challenges');
     }
+
+    const hints = nextChallenge.hints.filter((hint) => hint.show);
 
     nextChallenge.hints = hints;
 
