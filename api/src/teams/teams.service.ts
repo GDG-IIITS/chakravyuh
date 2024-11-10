@@ -65,9 +65,14 @@ export class TeamsService {
     await user.save();
 
     if (!team.members || team.members.length === 0) {
-      team.members = [];
+      team['members'] = [];
     }
-    team.members.push(userId);
+    try {
+      team.members.push(userId);
+    } catch (e) {
+      console.log(e);
+      team['members'] = [userId];
+    }
     await team.save();
     return team;
   }
