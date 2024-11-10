@@ -53,7 +53,7 @@ export class TeamsService {
       throw new ForbiddenException('User not in same ug');
     }
 
-    if (team.members.includes(userId)) {
+    if (team.members && team.members.includes(userId)) {
       throw new ForbiddenException('User already in team');
     }
 
@@ -64,6 +64,9 @@ export class TeamsService {
     user.team = team.id;
     await user.save();
 
+    if (!team.members || team.members.length === 0) {
+      team.members = [];
+    }
     team.members.push(userId);
     await team.save();
     return team;
