@@ -77,6 +77,7 @@ export class AuthController {
     return await this.authService.verifyEmail(token);
   }
 
+  @AllowInactive()
   @Delete('/logout')
   async logoutDevice(
     @Req() req: Request,
