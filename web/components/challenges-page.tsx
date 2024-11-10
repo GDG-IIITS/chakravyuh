@@ -35,7 +35,6 @@ export function ChallengesPage() {
     searchTerm,
     isAddModalOpen,
     isDeleteModalOpen,
-    selectedChallenge,
     setSelectedChallenge,
     setSearchTerm,
     openAddModal,
