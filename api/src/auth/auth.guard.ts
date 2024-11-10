@@ -55,6 +55,6 @@ export class AuthGuard implements CanActivate {
     //     'User account is not activated! May be try verifying your email?',
     //   );
     // }
-    return request['user'].isActive || allowInactive;
+    return true;
   }
 }
