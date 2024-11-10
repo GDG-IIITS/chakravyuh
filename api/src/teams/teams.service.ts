@@ -61,13 +61,14 @@ export class TeamsService {
 
     try {
       if (!team.members || team.members.length === 0) {
-        team['members'] = [];
+        team['members'] = [userId];
       }
-      team.members.push(userId);
-      // team['members'] = [userId];
+
       await team.save();
     } catch (e) {
       console.log(e);
+      team['members'] = [userId];
+      await team.save();
     }
     return team;
   }
