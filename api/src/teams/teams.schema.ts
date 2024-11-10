@@ -20,14 +20,17 @@ export class Team {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   lead: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-  members: string[];
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] })
+  members?: string[];
 
   @Prop({ required: true, default: generateJoinCode })
   joinCode: string;
 
   @Prop({ required: true, default: 0 })
   score: number;
+
+  @Prop({ required: true, default: false })
+  isCore: boolean;
 
   @Prop({ required: true, default: true })
   alive: boolean;
