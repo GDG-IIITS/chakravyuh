@@ -30,6 +30,20 @@ type Hint = {
   show: boolean;
 };
 
+type Challenge = {
+  title?: string;
+  no?: number;
+  summary?: string;
+  description?: string;
+  maxScore?: number;
+  startTime?: string;
+  endTime?: string;
+  flag?: string;
+  csv?: string;
+  tags?: string[];
+  submissionVerificationMode?: string;
+};
+
 export default function ChallengeEditor() {
   const { selectedChallenge, addChallenge, setSelectedChallenge } =
     useChallengesContext();
@@ -39,84 +53,96 @@ export default function ChallengeEditor() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hints, setHints] = useState<Hint[]>([{ text: "", show: false }]);
-  const [Challenge, setChallenge] = useState(selectedChallenge);
+  const [tags, setTags] = useState<string[]>([]);
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
 
   useEffect(() => {
     if (selectedChallenge) {
-      console.log(selectedChallenge);
+      setChallenge(selectedChallenge);
       setVerificationMode(selectedChallenge.submissionVerificationMode);
-      setHints(
-        selectedChallenge.numHints
-          ? Array(selectedChallenge.numHints).fill({
-              text: "Some hint here",
-              show: false,
-            })
-          : []
+      // Convert hints from number to array of hint objects
+      const initialHints = Array.from(
+        { length: selectedChallenge.numHints || 1 },
+        () => ({ text: "", show: false })
       );
+      setHints(initialHints);
+      setTags(selectedChallenge.tags || []);
     }
   }, [selectedChallenge]);
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (currentPage !== 4) {
-      console.log("hi");
-      return;
-    }
-    setIsLoading(true);
+    if (currentPage !== 4) return;
 
-    if (selectedChallenge) {
-      console.log("Updating challenge", Challenge);
-    } else {
-      console.log("adding challenge", {
-        title: Challenge?.title || "",
-        no: Challenge?.no || 0,
-        summary: Challenge?.summary || "",
-        creator: "",
-        maxScore: Challenge?.maxScore || 0,
+    setIsLoading(true);
+    try {
+      const challengeData = {
+        ...challenge,
+        tags: tags.filter((tag) => tag.trim() !== ""), // Remove empty tags
+        numHints: hints.filter((hint) => hint.text.trim() !== "").length, // Count non-empty hints
         submissionVerificationMode: verificationMode,
-        flag: Challenge?.flag || "",
-        csv: Challenge?.csv || "",
-        numHints: hints.length,
-        startTime: Challenge?.startTime || "",
-        endTime: Challenge?.endTime || "",
-      });
-      // Call addChallenge from context
-      addChallenge({
-        title: Challenge?.title || "",
-        description: Challenge?.description || "",
-        no: Challenge?.no || 0,
-        summary: Challenge?.summary || "",
-        creator: "",
-        maxScore: Challenge?.maxScore || 0,
-        submissionVerificationMode: verificationMode,
-        flag: Challenge?.flag || "",
-        csv: Challenge?.csv || "",
-        numHints: hints.length,
-        startTime: Challenge?.startTime || "",
-        endTime: Challenge?.endTime || "",
-      });
+        hints: hints
+          .map((hint) => hint.text)
+          .filter((text) => text.trim() !== ""), // Save non-empty hint texts
+      };
+
+      if (selectedChallenge) {
+        // Update existing challenge
+        console.log("Updating challenge", challengeData);
+        // await updateChallenge(challengeData);
+      } else {
+        // Add new challenge
+        console.log("Adding challenge", challengeData);
+        await addChallenge(challengeData);
+      }
+    } catch (error) {
+      console.error("Error saving challenge:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const addHint = useCallback(() => {
-    setHints((prevHints) => [...prevHints, { text: "", show: false }]);
+    setHints((prev) => [...prev, { text: "", show: false }]);
   }, []);
 
-  const deleteHint = useCallback((index) => {
-    setHints((prevHints) => prevHints.filter((_, i) => i !== index));
+  const deleteHint = useCallback((index: number) => {
+    setHints((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  const updateHint = useCallback((index, newHint) => {
-    setHints((prevHints) => {
-      const updatedHints = [...prevHints];
-      updatedHints[index] = newHint;
-      return updatedHints;
+  const updateHint = useCallback((index: number, text: string) => {
+    setHints((prev) => {
+      const newHints = [...prev];
+      newHints[index] = { ...newHints[index], text };
+      return newHints;
     });
   }, []);
 
+  const addTag = useCallback(() => {
+    setTags((prev) => [...prev, ""]);
+  }, []);
+
+  const deleteTag = useCallback((index: number) => {
+    setTags((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const updateTag = useCallback((index: number, value: string) => {
+    setTags((prev) => {
+      const newTags = [...prev];
+      newTags[index] = value;
+      return newTags;
+    });
+  }, []);
+
+  const handleInputChange = (field: keyof Challenge, value: any) => {
+    setChallenge((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   return (
-    <Card className="w-full max-w-2xl mx-auto py">
+    <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <div className="mb-4">
           <Progress value={(currentPage / 4) * 100} className="w-full" />
@@ -131,11 +157,7 @@ export default function ChallengeEditor() {
         </CardDescription>
       </CardHeader>
 
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-        }}
-      >
+      <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="min-h-[300px]">
             {currentPage === 1 && (
@@ -144,53 +166,37 @@ export default function ChallengeEditor() {
                   label="Title"
                   id="title"
                   placeholder="Enter challenge title"
-                  value={Challenge?.title || ""}
+                  value={challenge?.title || ""}
                   required
-                  onChange={(e) =>
-                    setChallenge({
-                      ...Challenge,
-                      title: e.target.value,
-                    })
-                  }
+                  onChange={(e) => handleInputChange("title", e.target.value)}
                 />
                 <InputField
                   label="Number"
                   id="challengeNumber"
                   type="number"
                   placeholder="Enter challenge number"
-                  value={Challenge?.no || 0}
+                  value={challenge?.no || ""}
                   required
                   onChange={(e) =>
-                    setChallenge({
-                      ...Challenge,
-                      no: Number(e.target.value),
-                    })
+                    handleInputChange("no", Number(e.target.value))
                   }
                 />
                 <TextareaField
                   label="Summary"
                   id="challengeSummary"
                   placeholder="Enter challenge summary"
-                  value={Challenge?.summary || ""}
-                  onChange={(e) =>
-                    setChallenge({
-                      ...Challenge,
-                      summary: e.target.value,
-                    })
-                  }
+                  value={challenge?.summary || ""}
+                  onChange={(e) => handleInputChange("summary", e.target.value)}
                 />
                 <InputField
                   label="Max Score"
                   id="maxScore"
                   type="number"
                   placeholder="Enter max score"
-                  value={Challenge?.maxScore || 0}
+                  value={challenge?.maxScore || ""}
                   required
                   onChange={(e) =>
-                    setChallenge({
-                      ...Challenge,
-                      maxScore: Number(e.target.value),
-                    })
+                    handleInputChange("maxScore", Number(e.target.value))
                   }
                 />
               </>
@@ -203,12 +209,9 @@ export default function ChallengeEditor() {
                   id="description"
                   placeholder="Enter challenge description"
                   rows={10}
-                  value={Challenge?.description || ""}
+                  value={challenge?.description || ""}
                   onChange={(e) =>
-                    setChallenge({
-                      ...Challenge,
-                      description: e.target.value,
-                    })
+                    handleInputChange("description", e.target.value)
                   }
                 />
                 <div className="grid grid-cols-2 gap-4">
@@ -216,26 +219,20 @@ export default function ChallengeEditor() {
                     label="Start Time"
                     id="startTime"
                     type="datetime-local"
-                    value={Challenge?.startTime || ""}
+                    value={challenge?.startTime || ""}
                     required
                     onChange={(e) =>
-                      setChallenge({
-                        ...Challenge,
-                        startTime: e.target.value,
-                      })
+                      handleInputChange("startTime", e.target.value)
                     }
                   />
                   <InputField
                     label="End Time"
                     id="endTime"
                     type="datetime-local"
-                    value={Challenge?.endTime || ""}
+                    value={challenge?.endTime || ""}
                     required
                     onChange={(e) =>
-                      setChallenge({
-                        ...Challenge,
-                        endTime: e.target.value,
-                      })
+                      handleInputChange("endTime", e.target.value)
                     }
                   />
                 </div>
@@ -248,96 +245,93 @@ export default function ChallengeEditor() {
                   label="Verification Mode"
                   value={verificationMode}
                   options={["mono", "unique", "custom"]}
-                  onChange={(value) => setVerificationMode(value)}
+                  onChange={setVerificationMode}
                 />
                 {verificationMode === "mono" && (
                   <InputField
                     label="Flag"
                     id="flag"
                     placeholder="Enter flag"
-                    value={Challenge?.flag || ""}
+                    value={challenge?.flag || ""}
                     required
-                    onChange={(e) =>
-                      setChallenge({
-                        ...Challenge,
-                        flag: e.target.value,
-                      })
-                    }
+                    onChange={(e) => handleInputChange("flag", e.target.value)}
                   />
                 )}
                 {verificationMode === "unique" && (
                   <TextareaField
                     label="Paste CSV Text"
                     id="csv"
-                    value={Challenge?.csv || ""}
+                    value={challenge?.csv || ""}
                     placeholder="Paste CSV text"
                     rows={10}
                     required
-                    onChange={(e) =>
-                      setChallenge({
-                        ...Challenge,
-                        csv: e.target.value,
-                      })
-                    }
+                    onChange={(e) => handleInputChange("csv", e.target.value)}
                   />
-                )}
-                {verificationMode === "Custom" && (
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="apiKey">
-                      API Key
-                    </Label>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        id="apiKey"
-                        type={isApiKeyVisible ? "text" : "password"}
-                        placeholder="Enter API key"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        onClick={() => setIsApiKeyVisible(!isApiKeyVisible)}
-                      >
-                        {isApiKeyVisible ? "Hide" : "Show"}
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          navigator.clipboard.writeText(
-                            (
-                              document.getElementById(
-                                "apiKey"
-                              ) as HTMLInputElement
-                            )?.value
-                          )
-                        }
-                      >
-                        Copy
-                      </Button>
-                    </div>
-                  </div>
                 )}
               </>
             )}
 
             {currentPage === 4 && (
               <>
-                <Label className="ml-1">Hints</Label>
-                {hints.map((hint, index) => (
-                  <HintItem
-                    key={index}
-                    hint={hint}
-                    onDelete={() => deleteHint(index)}
-                    onChange={(newHint) => updateHint(index, newHint)}
-                  />
-                ))}
-                <Button
-                  type="button"
-                  onClick={addHint}
-                  className="flex items-center space-x-2"
-                >
-                  <Plus size={16} />
-                  <span>Add</span>
-                </Button>
+                <div className="space-y-2">
+                  <Label className="ml-1">Hints</Label>
+                  <div className="space-y-2">
+                    {hints.map((hint, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Textarea
+                          value={hint.text}
+                          onChange={(e) => updateHint(index, e.target.value)}
+                          placeholder="Enter hint text"
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => deleteHint(index)}
+                          variant="destructive"
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      onClick={addHint}
+                      className="flex items-center space-x-2"
+                    >
+                      <Plus size={16} />
+                      <span>Add Hint</span>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mt-4">
+                  <Label className="ml-1">Tags</Label>
+                  <div className="space-y-2">
+                    {tags.map((tag, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Input
+                          value={tag}
+                          onChange={(e) => updateTag(index, e.target.value)}
+                          placeholder="Enter tag"
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => deleteTag(index)}
+                          variant="destructive"
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      onClick={addTag}
+                      className="flex items-center space-x-2"
+                    >
+                      <Plus size={16} />
+                      <span>Add Tag</span>
+                    </Button>
+                  </div>
+                </div>
               </>
             )}
           </div>
@@ -360,8 +354,12 @@ export default function ChallengeEditor() {
               Next
             </Button>
           ) : (
-            <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Challenge"}
+            <Button type="submit" disabled={isLoading}>
+              {isLoading
+                ? "Saving..."
+                : selectedChallenge
+                ? "Update Challenge"
+                : "Create Challenge"}
             </Button>
           )}
         </CardFooter>
@@ -433,25 +431,5 @@ const SelectField = ({ label, value, options, onChange }) => (
         ))}
       </SelectContent>
     </Select>
-  </div>
-);
-
-const ApiKeyField = ({ isApiKeyVisible, onToggle }) => (
-  <div className="flex items-center space-x-2">
-    <Label>Require API Key</Label>
-    <Switch checked={isApiKeyVisible} onCheckedChange={onToggle} />
-  </div>
-);
-
-const HintItem = ({ hint, onDelete, onChange }) => (
-  <div className="flex items-center space-x-2 mb-2">
-    <Textarea
-      value={hint.text}
-      onChange={(e) => onChange({ ...hint, text: e.target.value })}
-      placeholder="Hint text"
-    />
-    <Button type="button" onClick={onDelete} variant="destructive">
-      <Trash size={16} />
-    </Button>
   </div>
 );

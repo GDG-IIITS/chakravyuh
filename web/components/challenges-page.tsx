@@ -55,6 +55,7 @@ export function ChallengesPage() {
       title: challenge.title,
       description: challenge.description || "",
       no: challenge.no,
+      tags: challenge.tags,
       summary: challenge.summary || "",
       creator: challenge.creator,
       maxScore: challenge.maxScore || 0,

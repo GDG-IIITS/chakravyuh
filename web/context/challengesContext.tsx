@@ -13,6 +13,7 @@ type Challenge = {
   id: string;
   title: string;
   description: string;
+  tags: string[];
   no: number;
   summary: string;
   creator: string;
@@ -125,6 +126,7 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
         `${process.env.NEXT_PUBLIC_API_URL}/challenges`,
         {
           ...challenge,
+          tags: challenge.tags,
           hints: challenge.numHints
             ? Array(challenge.numHints).fill({
                 text: "Some hint here",
