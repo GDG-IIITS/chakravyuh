@@ -137,7 +137,9 @@ export function ChallengesPage() {
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => openDeleteModal(challenge)}
+                      onClick={() =>
+                        openDeleteModal(mapToChallengeType(challenge))
+                      }
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
