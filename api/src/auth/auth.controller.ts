@@ -67,14 +67,8 @@ export class AuthController {
 
   @AllowInactive()
   @Post('/verify-email/init')
-  async initEmailVerification(
-    @Req() req: Request,
-    @Body() emailVerificationDto: VerifyEmailDto,
-  ) {
-    return await this.authService.initEmailVerification(
-      req['user'].id,
-      emailVerificationDto.frontendBase,
-    );
+  async initEmailVerification(@Req() req: Request) {
+    return await this.authService.initEmailVerification(req['user'].id);
   }
 
   @AllowInactive()

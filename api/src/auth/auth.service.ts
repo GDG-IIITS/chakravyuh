@@ -161,7 +161,7 @@ export class AuthService {
     return await token.save();
   }
 
-  async initEmailVerification(userId: string, frontendBase: string) {
+  async initEmailVerification(userId: string) {
     const user = await this.usersService.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -170,12 +170,10 @@ export class AuthService {
       return { message: 'Email already verified' };
     }
     const token = await this.createEmailVerificationToken(userId, user.email);
-    const verificationUrl = `${frontendBase}?token=${token.token}`;
     await this.mailerService.sendMail({
       recipients: [user.email],
       subject: 'Email Verification for Chakravyuh Account',
-      text: `Click on the link to verify your email: ${verificationUrl}`,
-      html: `Click on the link to verify your email: <a href="${verificationUrl}">${verificationUrl}</a>`,
+      text: `Token to verify your email (will expire soon!): ${token}`,
     });
     return { message: 'Email verification link sent to your email' };
   }
