@@ -47,7 +47,7 @@ export default function LoginSignupPage() {
         setShowLogin(true); // Toggle flag
       }
       console.log(response);
-    } catch (err: any) {
+    } catch (err: Error | any) {
       setError(err.response?.data?.message || "An error occurred");
     } finally {
       setIsLoading(false);
@@ -147,24 +147,6 @@ export default function LoginSignupPage() {
           </form>
 
           {error && <p className="text-red-500">{error}</p>}
-
-          <p className="px-8 text-center text-sm text-muted-foreground">
-            By continuing, you agree to our{" "}
-            <Link
-              href="/terms"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/privacy"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Privacy Policy
-            </Link>
-            .
-          </p>
         </div>
       </div>
     </div>
