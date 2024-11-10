@@ -65,7 +65,7 @@ export class TeamsController {
   @Roles(URoles.superuser, URoles.admin)
   @Get('/ids')
   @ApiOperation({ summary: 'Get only team ids' })
-  async findAll(): Promise<Team[]> {
+  async findOnlyIds(): Promise<Team[]> {
     return this.teamsService.findOnlyIds();
   }
 
