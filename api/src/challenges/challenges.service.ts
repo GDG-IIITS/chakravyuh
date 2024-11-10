@@ -141,17 +141,17 @@ export class ChallengesService {
 
   async myTodo(userId: string): Promise<Challenge> {
     const team = await this.teamsService.my(userId);
-
+    // TODO: canSubmit can be called to check start/end time validity
     const nextChallenge = await this.challengeModel
       .findOne({ no: team.score + 1 })
       .select('-submissionVerification')
       .exec();
 
-    const hints = nextChallenge.hints.filter((hint) => hint.show);
-
     if (!nextChallenge) {
       throw new NotFoundException('No more challenges');
     }
+
+    const hints = nextChallenge.hints.filter((hint) => hint.show);
 
     nextChallenge.hints = hints;
 
