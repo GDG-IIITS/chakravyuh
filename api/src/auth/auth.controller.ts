@@ -15,7 +15,6 @@ import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
 import { VerifyResetPasswordDto } from './dto/verify-reset-password.dto';
 import { lucia } from './lucia';
 import { Public } from './public.decorator';
