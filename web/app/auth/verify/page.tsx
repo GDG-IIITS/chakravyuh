@@ -48,6 +48,7 @@ export default async function VerifyEmailPage({
       </div>
     );
   } catch (error) {
+    console.log(error);
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
         <div className="rounded-lg bg-white p-8 shadow-md">
@@ -55,7 +56,7 @@ export default async function VerifyEmailPage({
             Email Verification Failed
           </h1>
           <p className="text-gray-600">
-            We couldn't verify your email. The link may have expired or is
+            We could not verify your email. The link may have expired or is
             invalid.
           </p>
         </div>

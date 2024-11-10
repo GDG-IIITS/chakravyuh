@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,58 +18,96 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpDown, Search, Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  ArrowUpDown,
+  Download,
+  Edit,
+  MoreVertical,
+  Search,
+} from "lucide-react";
+import TeamEditor from "./teams-editor";
+import axios from "axios";
 
 // Mock data for demonstration
-const mockTeams = [
-  {
-    name: "Team A",
-    ug: "UG1",
-    member1: "John",
-    member2: "Jane",
-    lead: "John",
-    score: 100,
-  },
-  {
-    name: "Team B",
-    ug: "UG2",
-    member1: "Alice",
-    member2: "Bob",
-    lead: "Alice",
-    score: 90,
-  },
-  {
-    name: "Team C",
-    ug: "UG1",
-    member1: "Charlie",
-    member2: "David",
-    lead: "Charlie",
-    score: 110,
-  },
-  {
-    name: "Team D",
-    ug: "UG3",
-    member1: "Eve",
-    member2: "Frank",
-    lead: "Eve",
-    score: 95,
-  },
-  {
-    name: "Team E",
-    ug: "UG2",
-    member1: "Grace",
-    member2: "Henry",
-    lead: "Grace",
-    score: 105,
-  },
-];
+// const mockTeams = [
+//   {
+//     name: "Team A",
+//     ug: "UG1",
+//     member1: "John",
+//     member2: "Jane",
+//     lead: "John",
+//     score: 100,
+//   },
+//   {
+//     name: "Team B",
+//     ug: "UG2",
+//     member1: "Alice",
+//     member2: "Bob",
+//     lead: "Alice",
+//     score: 90,
+//   },
+//   {
+//     name: "Team C",
+//     ug: "UG1",
+//     member1: "Charlie",
+//     member2: "David",
+//     lead: "Charlie",
+//     score: 110,
+//   },
+//   {
+//     name: "Team D",
+//     ug: "UG3",
+//     member1: "Eve",
+//     member2: "Frank",
+//     lead: "Eve",
+//     score: 95,
+//   },
+//   {
+//     name: "Team E",
+//     ug: "UG2",
+//     member1: "Grace",
+//     member2: "Henry",
+//     lead: "Grace",
+//     score: 105,
+//   },
+// ];
 
-export function TeamsPageComponent() {
+export default function TeamsPageComponent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUG, setSelectedUG] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
 
-  const filteredAndSortedTeams = mockTeams
+  const [teams, setTeams] = useState<any[]>([]);
+  const [isSubmissioniModalOpen, setIsSubmissionModalOpen] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<any>();
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/teams`,
+          {
+            withCredentials: true, // Include cookies in the request
+          }
+        );
+
+        setTeams(response.data); // Assuming the response data is an array of users
+      } catch (error) {
+        console.error("Failed to fetch teams:", error);
+      }
+    };
+
+    fetchTeams();
+  }, [setIsSubmissionModalOpen]);
+
+  const filteredAndSortedTeams = teams
     .filter(
       (team) =>
         (team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,7 +121,7 @@ export function TeamsPageComponent() {
     );
 
   const handleDownload = () => {
-    const teamIDs = mockTeams.map((team) => team.name).join("\n");
+    const teamIDs = teams.map((team) => team.name).join("\n");
     const blob = new Blob([teamIDs], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -119,7 +157,7 @@ export function TeamsPageComponent() {
         </Select>
         <div className="flex-grow"></div>
         <Button
-          variant="primary"
+          variant="default"
           className="bg-black text-white"
           onClick={handleDownload}
         >
@@ -135,8 +173,7 @@ export function TeamsPageComponent() {
               <TableHead>Team Name</TableHead>
               <TableHead>UG</TableHead>
               <TableHead>Lead</TableHead>
-              <TableHead>Member 1</TableHead>
-              <TableHead>Member 2</TableHead>
+              <TableHead>Team ID</TableHead>
               <TableHead>
                 <div className="flex items-center">
                   Current Score
@@ -159,13 +196,44 @@ export function TeamsPageComponent() {
                 <TableCell className="font-medium">{team.name}</TableCell>
                 <TableCell>{team.ug}</TableCell>
                 <TableCell>{team.lead}</TableCell>
-                <TableCell>{team.member1}</TableCell>
-                <TableCell>{team.member2}</TableCell>
+                <TableCell>{team._id}</TableCell>
                 <TableCell>{team.score}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedTeam(team);
+                          setIsSubmissionModalOpen(true);
+                        }}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Make Submission
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+
+        <Dialog
+          open={isSubmissioniModalOpen}
+          onOpenChange={setIsSubmissionModalOpen}
+        >
+          <DialogContent className="bg-gray-100 bg-transparent border-none">
+            <TeamEditor
+              team={selectedTeam}
+              setIsSubmissionModalOpen={setIsSubmissionModalOpen}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

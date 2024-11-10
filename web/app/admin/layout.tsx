@@ -26,6 +26,10 @@ export default function AdminLayout({
     return <div>Loading...</div>; // You can customize this part with a spinner or any loading message
   }
 
+  if (user?.role === "user") {
+    return <div>Unauthorized !! You are a user</div>;
+  }
+
   return (
     <div className="flex">
       <div>

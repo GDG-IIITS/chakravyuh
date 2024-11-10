@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Trophy, Award, Users2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Users, Trophy, Users2 } from "lucide-react";
 
 import {
   Sidebar,
@@ -15,7 +14,6 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import axios from "axios";
 import { useContext } from "react";
 import { AuthContext } from "@/context/authProvider";
 
