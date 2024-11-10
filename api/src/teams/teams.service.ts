@@ -21,6 +21,9 @@ export class TeamsService {
 
   async create(userId: string, createTeamDto: CreateTeamDto): Promise<Team> {
     const lead = await this.userService.findById(userId);
+    if (lead.team) {
+      throw new ForbiddenException('User already in a team');
+    }
     const newTeam = new this.teamsModel({
       ...createTeamDto,
       lead: userId,
@@ -93,8 +96,8 @@ export class TeamsService {
     return this.teamsModel
       .find()
       .populate([
-        { path: 'lead', select: 'fullName' },
-        { path: 'members', select: 'fullName' },
+        { path: 'lead', select: 'fullName email' },
+        { path: 'members', select: 'fullName email' },
       ])
       .exec();
   }
