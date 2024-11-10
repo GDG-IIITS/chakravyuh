@@ -136,6 +136,9 @@ export default function UsersPage() {
     fetchUsers();
   }, [setIsEditModalOpen]);
 
+  if (selectedRole === "--") {
+    setSelectedRole("");
+  }
   const filteredAndSortedUsers = users
     .filter(
       (user) =>
@@ -174,7 +177,7 @@ export default function UsersPage() {
         </div>
         <Select value={selectedRole} onValueChange={setSelectedRole}>
           <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Filter by Role" />
+            <SelectValue placeholder="All Roles" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="--">All Roles</SelectItem>

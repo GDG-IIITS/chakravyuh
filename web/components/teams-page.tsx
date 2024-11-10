@@ -27,6 +27,7 @@ import {
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   ArrowUpDown,
+  Copy,
   Download,
   Edit,
   MoreVertical,
@@ -107,21 +108,32 @@ export default function TeamsPageComponent() {
     fetchTeams();
   }, [setIsSubmissionModalOpen]);
 
+  if (selectedUG == "--") {
+    setSelectedUG("");
+  }
+
   const filteredAndSortedTeams = teams
-    .filter(
-      (team) =>
+    .filter((team) => {
+      return (
         (team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          team.member1.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          team.member2.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          team.lead.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (selectedUG === "" || team.ug === selectedUG)
-    )
+          team.members[0]?.fullName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          team.members[1]?.fullName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          team.lead.fullName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) &&
+        (selectedUG == "" || team.ug == selectedUG)
+      );
+    })
     .sort((a, b) =>
       sortOrder === "asc" ? a.score - b.score : b.score - a.score
     );
 
   const handleDownload = () => {
-    const teamIDs = teams.map((team) => team.name).join("\n");
+    const teamIDs = teams.map((team) => team._id).join("\n");
     const blob = new Blob([teamIDs], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -145,14 +157,14 @@ export default function TeamsPageComponent() {
         </div>
         <Select value={selectedUG} onValueChange={setSelectedUG}>
           <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Filter by UG" />
+            <SelectValue placeholder="All UGs" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="--">All UGs</SelectItem>
-            <SelectItem value="UG1">UG1</SelectItem>
-            <SelectItem value="UG2">UG2</SelectItem>
-            <SelectItem value="UG3">UG3</SelectItem>
-            <SelectItem value="UG4">UG4</SelectItem>
+            <SelectItem value="1">UG1</SelectItem>
+            <SelectItem value="2">UG2</SelectItem>
+            <SelectItem value="3">UG3</SelectItem>
+            <SelectItem value="4">UG4</SelectItem>
           </SelectContent>
         </Select>
         <div className="flex-grow"></div>
@@ -173,10 +185,9 @@ export default function TeamsPageComponent() {
               <TableHead>Team Name</TableHead>
               <TableHead>UG</TableHead>
               <TableHead>Lead</TableHead>
-              <TableHead>Team ID</TableHead>
               <TableHead>
                 <div className="flex items-center">
-                  Current Score
+                  Score
                   <Button
                     variant="ghost"
                     size="sm"
@@ -188,6 +199,7 @@ export default function TeamsPageComponent() {
                   </Button>
                 </div>
               </TableHead>
+              <TableHead>Team lead email</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -196,8 +208,8 @@ export default function TeamsPageComponent() {
                 <TableCell className="font-medium">{team.name}</TableCell>
                 <TableCell>{team.ug}</TableCell>
                 <TableCell>{team.lead.fullName}</TableCell>
-                <TableCell>{team._id}</TableCell>
                 <TableCell>{team.score}</TableCell>
+                <TableCell>{team.lead.email}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -214,6 +226,15 @@ export default function TeamsPageComponent() {
                       >
                         <Edit className="mr-2 h-4 w-4" />
                         Make Submission
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedTeam(team);
+                          navigator.clipboard.writeText(team._id);
+                        }}
+                      >
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy Team ID
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

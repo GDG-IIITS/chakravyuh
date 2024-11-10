@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useContext } from "react";
 import { AuthContext } from "@/context/authProvider";
+import { Button } from "./ui/button";
 
 const sidebarItems = [
   { name: "Users", icon: Users, href: "/admin/users" },
@@ -54,7 +55,9 @@ export function AppSidebar() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
-          <button onClick={handleLogout}>Logout</button>
+          <Button onClick={handleLogout} className="w-fit mx-auto mt-auto px-8">
+            Logout
+          </Button>
         </SidebarContent>
         <SidebarFooter>
           <hr />

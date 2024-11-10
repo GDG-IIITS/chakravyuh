@@ -49,7 +49,7 @@ export function ChallengesPage() {
     challenge.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  function mapToChallengeType(challenge) {
+  function mapToChallengeType(challenge: any) {
     return {
       id: challenge._id,
       title: challenge.title,

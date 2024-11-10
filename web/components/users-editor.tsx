@@ -48,7 +48,7 @@ const UserEditor: React.FC<UserEditorProps> = ({
       console.log("control reaches here ");
       setIsLoading(false);
       setIsEditModalOpen(false);
-      router.refresh();
+      router.push("/admin/users");
     } catch (error) {
       console.error("Failed to update user role", error);
     }
