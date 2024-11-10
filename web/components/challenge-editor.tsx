@@ -57,6 +57,10 @@ export default function ChallengeEditor() {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
+    if (currentPage !== 4) {
+      console.log("hi");
+      return;
+    }
     setIsLoading(true);
 
     if (selectedChallenge) {
@@ -126,7 +130,11 @@ export default function ChallengeEditor() {
         </CardDescription>
       </CardHeader>
 
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+        }}
+      >
         <CardContent className="space-y-4">
           <div className="min-h-[300px]">
             {currentPage === 1 && (
@@ -349,7 +357,7 @@ export default function ChallengeEditor() {
               Next
             </Button>
           ) : (
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
               {isLoading ? "Creating..." : "Create Challenge"}
             </Button>
           )}
