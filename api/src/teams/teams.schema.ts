@@ -19,7 +19,7 @@ export class Team {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   lead: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
   members?: string[];
 
   @Prop({ required: true, default: generateJoinCode })

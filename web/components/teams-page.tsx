@@ -195,7 +195,7 @@ export default function TeamsPageComponent() {
               <TableRow key={team.name}>
                 <TableCell className="font-medium">{team.name}</TableCell>
                 <TableCell>{team.ug}</TableCell>
-                <TableCell>{team.lead}</TableCell>
+                <TableCell>{team.lead.fullName}</TableCell>
                 <TableCell>{team._id}</TableCell>
                 <TableCell>{team.score}</TableCell>
                 <TableCell>

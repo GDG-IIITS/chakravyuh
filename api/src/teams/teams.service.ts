@@ -21,6 +21,9 @@ export class TeamsService {
 
   async create(userId: string, createTeamDto: CreateTeamDto): Promise<Team> {
     const lead = await this.userService.findById(userId);
+    if (lead.team) {
+      throw new ForbiddenException('User already in a team');
+    }
     const newTeam = new this.teamsModel({
       ...createTeamDto,
       lead: userId,
@@ -52,10 +55,6 @@ export class TeamsService {
       throw new ForbiddenException('User not in same ug');
     }
 
-    if (team.members && team.members.includes(userId)) {
-      throw new ForbiddenException('User already in team');
-    }
-
     if (team.lead.toString() === userId) {
       throw new ForbiddenException('Lead can not join as a member');
     }
@@ -63,16 +62,18 @@ export class TeamsService {
     user.team = team.id;
     await user.save();
 
-    if (!team.members || team.members.length === 0) {
-      team['members'] = [];
-    }
     try {
-      team.members.push(userId);
+      if (!team.members || team.members.length === 0) {
+        team['members'] = [userId];
+      }
+
+      await team.save();
     } catch (e) {
       console.log(e);
       team['members'] = [userId];
+      await team.save();
     }
-    await team.save();
+    console.log('Joined team succesfully');
     return team;
   }
 
@@ -95,8 +96,8 @@ export class TeamsService {
     return this.teamsModel
       .find()
       .populate([
-        { path: 'lead', select: 'fullName' },
-        { path: 'members', select: 'fullName' },
+        { path: 'lead', select: 'fullName email' },
+        { path: 'members', select: 'fullName email' },
       ])
       .exec();
   }
