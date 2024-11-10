@@ -20,11 +20,11 @@ import { Request } from 'express';
 export class ScoresController {
   constructor(private readonly scoresService: ScoresService) {}
 
-  @Roles(URoles.admin, URoles.superuser)
+  @Roles(URoles.superuser)
   @Post()
   @ApiOperation({
     summary:
-      'Create a score entry associated with a team for a specific challenge',
+      '[SUDO] Create a score entry associated with a team for a specific challenge',
   })
   async create(@Body() createScoreDto: CreateScoreDto): Promise<Score> {
     return this.scoresService.create(createScoreDto);

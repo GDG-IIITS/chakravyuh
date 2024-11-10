@@ -11,6 +11,7 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { JoinTeamDto } from './dto/join-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { Team, TeamDocument } from './teams.schema';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class TeamsService {
@@ -44,7 +45,7 @@ export class TeamsService {
       throw new ForbiddenException('User already in a team');
     }
 
-    if (team.members.length >= appConfig.maxTeamSize - 1) {
+    if (team.members && team.members.length >= appConfig.maxTeamSize - 1) {
       throw new ForbiddenException('Team is full');
     }
 
@@ -52,18 +53,26 @@ export class TeamsService {
       throw new ForbiddenException('User not in same ug');
     }
 
-    if (team.members.includes(userId)) {
+    if (team.members && team.members.includes(userId)) {
       throw new ForbiddenException('User already in team');
     }
 
-    if (team.lead === userId) {
+    if (team.lead.toString() === userId) {
       throw new ForbiddenException('Lead can not join as a member');
     }
 
     user.team = team.id;
     await user.save();
 
-    team.members.push(userId);
+    if (!team.members || team.members.length === 0) {
+      team['members'] = [];
+    }
+    try {
+      team.members.push(userId);
+    } catch (e) {
+      console.log(e);
+      team['members'] = [userId];
+    }
     await team.save();
     return team;
   }
@@ -73,7 +82,10 @@ export class TeamsService {
     if (!user.team) {
       throw new NotFoundException('User not in a team');
     }
-    const team = await this.teamsModel.findById(user.team);
+    const team = await this.teamsModel.findById(user.team).populate([
+      { path: 'lead', select: 'fullName' },
+      { path: 'members', select: 'fullName' },
+    ]);
     if (!team) {
       throw new NotFoundException('Team not found');
     }
@@ -81,7 +93,23 @@ export class TeamsService {
   }
 
   async findAll(): Promise<Team[]> {
-    return this.teamsModel.find().exec();
+    return this.teamsModel
+      .find()
+      .populate([
+        { path: 'lead', select: 'fullName' },
+        { path: 'members', select: 'fullName' },
+      ])
+      .exec();
+  }
+
+  async getLeaderboard(ug: number): Promise<Team[]> {
+    return this.teamsModel
+      .find({
+        ug: ug,
+      })
+      .sort({ score: -1 })
+      .populate('lead', 'fullName email')
+      .exec();
   }
 
   async findAllIds(): Promise<string> {

@@ -40,6 +40,15 @@ export class TeamsController {
     return this.teamsService.join(req['user'].id, joinTeamDto);
   }
 
+  @Get('/leaderboard')
+  @ApiOperation({ summary: 'Get teams leaderboard' })
+  async leaderboard(@Req() req: Request): Promise<Team[]> {
+    const ug = req['user'].ug;
+    console.log('%%%%%%%%%%%%%%Leaderboard%%%%%%%%%%%%%%');
+    console.log(ug);
+    return this.teamsService.getLeaderboard(ug);
+  }
+
   @Get('/my')
   @ApiOperation({ summary: 'Get my team' })
   async my(@Req() req: Request): Promise<Team> {
@@ -58,12 +67,6 @@ export class TeamsController {
   @ApiOperation({ summary: 'Get all team ids' })
   async findAllIds(): Promise<string> {
     return this.teamsService.findAllIds();
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Find team by id' })
-  async findOne(@Param('id') id: string): Promise<Team> {
-    return this.teamsService.findById(id);
   }
 
   @Patch(':id')

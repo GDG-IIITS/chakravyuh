@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Trophy, Award, Users2 } from "lucide-react";
+import { Users, Trophy, Users2 } from "lucide-react";
 
 import {
   Sidebar,
@@ -14,6 +14,8 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@/components/ui/sidebar";
+import { useContext } from "react";
+import { AuthContext } from "@/context/authProvider";
 
 const sidebarItems = [
   { name: "Users", icon: Users, href: "/admin/users" },
@@ -23,6 +25,10 @@ const sidebarItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { logout } = useContext(AuthContext);
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <SidebarProvider>
@@ -48,6 +54,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
+          <button onClick={handleLogout}>Logout</button>
         </SidebarContent>
         <SidebarFooter>
           <hr />

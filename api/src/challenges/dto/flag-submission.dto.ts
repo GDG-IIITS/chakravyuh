@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class FlagSubmissionDto {
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  challengeId: string;
+  @IsInt()
+  challengeNo: number;
 
   @ApiProperty()
   @IsString()
