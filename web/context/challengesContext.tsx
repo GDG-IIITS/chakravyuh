@@ -25,14 +25,37 @@ type Challenge = {
   endTime: string;
 };
 
+type ChallengeReturned = {
+  _id: string;
+  creator: string;
+  no: number;
+  title: string;
+  summary: string;
+  tags: string[];
+  startTime: string;
+  endTime: string;
+  description: string;
+  hints: {
+    text: string;
+    show: boolean;
+  }[];
+  submissionVerification: {
+    kind: string;
+    flag: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
 interface ChallengesContextType {
-  challenges: Challenge[];
+  challenges: ChallengeReturned[];
   searchTerm: string;
   isAddModalOpen: boolean;
   isDeleteModalOpen: boolean;
   selectedChallenge: Challenge | null;
   setSearchTerm: (term: string) => void;
-  setChallenges: (challenges: Challenge[]) => void;
+  setChallenges: (challenges: ChallengeReturned[]) => void;
   openAddModal: () => void;
   closeAddModal: () => void;
   openDeleteModal: (challenge: Challenge) => void;
@@ -47,7 +70,7 @@ const ChallengesContext = createContext<ChallengesContextType | undefined>(
 );
 
 export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [challenges, setChallenges] = useState<ChallengeReturned[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -56,7 +79,6 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
-    // Fetch challenges from API using Axios
     const fetchChallenges = async () => {
       try {
         const response = await axios.get(
@@ -111,7 +133,7 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
             : [],
         },
         {
-          withCredentials: true, // Send credentials (cookies) with the request
+          withCredentials: true,
         }
       );
 

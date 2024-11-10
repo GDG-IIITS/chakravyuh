@@ -43,7 +43,8 @@ export default function ChallengeEditor() {
 
   useEffect(() => {
     if (selectedChallenge) {
-      setVerificationMode(selectedChallenge.verificationType);
+      console.log(selectedChallenge);
+      setVerificationMode(selectedChallenge.submissionVerificationMode);
       setHints(
         selectedChallenge.numHints
           ? Array(selectedChallenge.numHints).fill({
@@ -254,6 +255,7 @@ export default function ChallengeEditor() {
                     label="Flag"
                     id="flag"
                     placeholder="Enter flag"
+                    value={Challenge?.flag || ""}
                     required
                     onChange={(e) =>
                       setChallenge({
@@ -267,6 +269,7 @@ export default function ChallengeEditor() {
                   <TextareaField
                     label="Paste CSV Text"
                     id="csv"
+                    value={Challenge?.csv || ""}
                     placeholder="Paste CSV text"
                     rows={10}
                     required

@@ -49,6 +49,24 @@ export function ChallengesPage() {
     challenge.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  function mapToChallengeType(challenge) {
+    return {
+      id: challenge._id,
+      title: challenge.title,
+      description: challenge.description || "",
+      no: challenge.no,
+      summary: challenge.summary || "",
+      creator: challenge.creator,
+      maxScore: challenge.maxScore || 0,
+      submissionVerificationMode: challenge.submissionVerification.kind,
+      flag: challenge.submissionVerification.flag || "",
+      csv: challenge.csv || "",
+      numHints: challenge.hints ? challenge.hints.length : 0,
+      startTime: challenge.startTime,
+      endTime: challenge.endTime,
+    };
+  }
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
@@ -77,7 +95,7 @@ export function ChallengesPage() {
             <TableHead>No</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Creator</TableHead>
-            <TableHead>Max Score</TableHead>
+            <TableHead>Tags</TableHead>
             <TableHead>Verification Type</TableHead>
             <TableHead>Hints</TableHead>
             <TableHead>Start Time</TableHead>
@@ -87,13 +105,13 @@ export function ChallengesPage() {
         </TableHeader>
         <TableBody>
           {filteredChallenges.map((challenge) => (
-            <TableRow key={challenge.id}>
+            <TableRow key={challenge._id}>
               <TableCell>{challenge.no}</TableCell>
               <TableCell>{challenge.title}</TableCell>
               <TableCell>{challenge.creator}</TableCell>
-              <TableCell>{challenge.maxScore}</TableCell>
-              <TableCell>{challenge.verificationType}</TableCell>
-              <TableCell>{challenge.numHints}</TableCell>
+              <TableCell>{challenge.tags.join(", ") || "N/A"}</TableCell>
+              <TableCell>{challenge.submissionVerification.kind}</TableCell>
+              <TableCell>{challenge.hints.length}</TableCell>
               <TableCell>
                 {new Date(challenge.startTime).toLocaleString()}
               </TableCell>
@@ -110,7 +128,7 @@ export function ChallengesPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        setSelectedChallenge(challenge); // Set the challenge for editing
+                        setSelectedChallenge(mapToChallengeType(challenge));
                         openAddModal();
                       }}
                     >
