@@ -65,6 +65,7 @@ interface ChallengesContextType {
   setSelectedChallenge: (challenge: Challenge | null) => void;
   addChallenge: (challenge: Omit<Challenge, "id">) => Promise<void>;
   updateChallenge: (id: string, challenge: Partial<Challenge>) => Promise<void>;
+  deleteChallenge: (id: string) => Promise<void>;
 }
 
 const ChallengesContext = createContext<ChallengesContextType | undefined>(
@@ -114,11 +115,33 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
     setIsDeleteModalOpen(false);
   };
 
-  const handleDeleteChallenge = () => {
-    if (selectedChallenge) {
-      setChallenges(challenges.filter((c) => c._id !== selectedChallenge.id));
+  const deleteChallenge = async (id: string) => {
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/challenges/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      // Update the local state by removing the deleted challenge
+      setChallenges(challenges.filter((challenge) => challenge._id !== id));
+    } catch (error) {
+      console.error("Error deleting challenge:", error);
+      throw error;
     }
-    closeDeleteModal();
+  };
+
+  const handleDeleteChallenge = async () => {
+    if (selectedChallenge) {
+      try {
+        await deleteChallenge(selectedChallenge.id);
+        closeDeleteModal();
+      } catch (error) {
+        console.error("Error in handleDeleteChallenge:", error);
+        // You might want to show an error message to the user here
+      }
+    }
   };
 
   const addChallenge = async (challenge: Omit<Challenge, "id">) => {
@@ -200,6 +223,7 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
         setSelectedChallenge,
         addChallenge,
         updateChallenge,
+        deleteChallenge,
       }}
     >
       {children}
