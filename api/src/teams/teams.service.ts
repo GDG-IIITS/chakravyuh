@@ -11,7 +11,6 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { JoinTeamDto } from './dto/join-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { Team, TeamDocument } from './teams.schema';
-import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class TeamsService {
@@ -51,10 +50,6 @@ export class TeamsService {
 
     if (user.ug !== team.ug) {
       throw new ForbiddenException('User not in same ug');
-    }
-
-    if (team.members && team.members.includes(userId)) {
-      throw new ForbiddenException('User already in team');
     }
 
     if (team.lead.toString() === userId) {
