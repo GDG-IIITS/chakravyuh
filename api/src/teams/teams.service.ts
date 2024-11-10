@@ -112,13 +112,6 @@ export class TeamsService {
       .exec();
   }
 
-  async findAllIds(): Promise<string> {
-    const ids = await this.teamsModel.find().select('_id').exec();
-
-    const idStrings = ids.map((doc: { _id: any }) => doc._id.toString());
-    return idStrings.join('\n');
-  }
-
   async findById(id: string): Promise<TeamDocument> {
     const team = await this.teamsModel.findById(id);
     if (!team) {

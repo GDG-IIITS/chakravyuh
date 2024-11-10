@@ -225,24 +225,7 @@ export default async () => {
           import('./challenges/dto/flag-submission.dto'),
           {
             FlagSubmissionDto: {
-              challengeNo: { required: true, type: () => Number },
-              flag: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
-          import('./scores/dto/update-score.dto'),
-          {
-            UpdateScoreDto: {
-              score: {
-                required: true,
-                type: () => Number,
-                minimum: 0,
-                maximum: 1,
-              },
-            },
-          },
-        ],
+
         [import('./challenges/entities/challenge.entity'), { Challenge: {} }],
         [import('./scores/entities/score.entity'), { Score: {} }],
         [import('./teams/entities/team.entity'), { Team: {} }],
@@ -299,10 +282,7 @@ export default async () => {
             TeamsController: {
               create: { type: t['./teams/teams.schema'].Team },
               join: { type: t['./teams/teams.schema'].Team },
-              leaderboard: { type: [t['./teams/teams.schema'].Team] },
-              my: { type: t['./teams/teams.schema'].Team },
-              findAll: { type: [t['./teams/teams.schema'].Team] },
-              findAllIds: { type: String },
+
               update: { type: t['./teams/teams.schema'].Team },
               remove: { type: t['./teams/teams.schema'].Team },
             },
@@ -320,7 +300,7 @@ export default async () => {
               myDone: { type: [t['./challenges/challenges.schema'].Challenge] },
               myTodo: { type: t['./challenges/challenges.schema'].Challenge },
               verifySubmission: { type: Boolean },
-              markDone: { type: Boolean },
+
               setScoreViaKey: { type: t['./scores/scores.schema'].Score },
               update: { type: t['./challenges/challenges.schema'].Challenge },
               remove: { type: t['./challenges/challenges.schema'].Challenge },
@@ -342,3 +322,4 @@ export default async () => {
     },
   };
 };
+

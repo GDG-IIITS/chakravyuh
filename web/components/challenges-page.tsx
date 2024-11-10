@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useChallengesContext } from "@/context/challengesContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,7 +22,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -31,53 +29,44 @@ import {
 import { Search, MoreVertical, Edit, Trash2, Plus } from "lucide-react";
 import ChallengeEditor from "./challenge-editor";
 
-type Challenge = {
-  id: string;
-  title: string;
-  no: number;
-  summary: string;
-  creator: string;
-  maxScore: number;
-  verificationType: string;
-  numHints: number;
-  startTime: string;
-  endTime: string;
-};
-
 export function ChallengesPage() {
-  const [challenges, setChallenges] = useState<Challenge[]>([
-    {
-      id: "1",
-      title: "Web Security Challenge",
-      no: 1,
-      summary: "Find and exploit vulnerabilities in a web application",
-      creator: "John Doe",
-      maxScore: 100,
-      verificationType: "Automatic",
-      numHints: 3,
-      startTime: "2023-06-01T00:00:00Z",
-      endTime: "2023-06-30T23:59:59Z",
-    },
-    // Add more sample challenges here
-  ]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
-    null
-  );
+  const {
+    challenges,
+    searchTerm,
+    isAddModalOpen,
+    isDeleteModalOpen,
+    selectedChallenge,
+    setSelectedChallenge,
+    setSearchTerm,
+    openAddModal,
+    closeAddModal,
+    openDeleteModal,
+    closeDeleteModal,
+    handleDeleteChallenge,
+  } = useChallengesContext();
 
   const filteredChallenges = challenges.filter((challenge) =>
     challenge.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDeleteChallenge = () => {
-    if (selectedChallenge) {
-      setChallenges(challenges.filter((c) => c.id !== selectedChallenge.id));
-    }
-    setIsDeleteModalOpen(false);
-    setSelectedChallenge(null);
-  };
+  function mapToChallengeType(challenge) {
+    return {
+      id: challenge._id,
+      title: challenge.title,
+      description: challenge.description || "",
+      no: challenge.no,
+      tags: challenge.tags,
+      summary: challenge.summary || "",
+      creator: challenge.creator,
+      maxScore: challenge.maxScore || 0,
+      submissionVerificationMode: challenge.submissionVerification.kind,
+      flag: challenge.submissionVerification.flag || "",
+      csv: challenge.csv || "",
+      numHints: challenge.hints ? challenge.hints.length : 0,
+      startTime: challenge.startTime,
+      endTime: challenge.endTime,
+    };
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -91,8 +80,12 @@ export function ChallengesPage() {
             className="pl-8"
           />
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)}>
-          {" "}
+        <Button
+          onClick={() => {
+            setSelectedChallenge(null); // Reset selectedChallenge for new challenge creation
+            openAddModal();
+          }}
+        >
           <Plus /> Add Challenge
         </Button>
       </div>
@@ -103,7 +96,7 @@ export function ChallengesPage() {
             <TableHead>No</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Creator</TableHead>
-            <TableHead>Max Score</TableHead>
+            <TableHead>Tags</TableHead>
             <TableHead>Verification Type</TableHead>
             <TableHead>Hints</TableHead>
             <TableHead>Start Time</TableHead>
@@ -113,13 +106,13 @@ export function ChallengesPage() {
         </TableHeader>
         <TableBody>
           {filteredChallenges.map((challenge) => (
-            <TableRow key={challenge.id}>
+            <TableRow key={challenge._id}>
               <TableCell>{challenge.no}</TableCell>
               <TableCell>{challenge.title}</TableCell>
               <TableCell>{challenge.creator}</TableCell>
-              <TableCell>{challenge.maxScore}</TableCell>
-              <TableCell>{challenge.verificationType}</TableCell>
-              <TableCell>{challenge.numHints}</TableCell>
+              <TableCell>{challenge.tags.join(", ") || "N/A"}</TableCell>
+              <TableCell>{challenge.submissionVerification.kind}</TableCell>
+              <TableCell>{challenge.hints.length}</TableCell>
               <TableCell>
                 {new Date(challenge.startTime).toLocaleString()}
               </TableCell>
@@ -136,18 +129,15 @@ export function ChallengesPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        setSelectedChallenge(challenge);
-                        setIsAddModalOpen(true);
+                        setSelectedChallenge(mapToChallengeType(challenge));
+                        openAddModal();
                       }}
                     >
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedChallenge(challenge);
-                        setIsDeleteModalOpen(true);
-                      }}
+                      onClick={() => openDeleteModal(challenge)}
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
@@ -160,22 +150,18 @@ export function ChallengesPage() {
         </TableBody>
       </Table>
 
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+      <Dialog open={isAddModalOpen} onOpenChange={closeAddModal}>
         <DialogContent className="bg-gray-100 bg-transparent border-none">
-          <ChallengeEditor challenge={selectedChallenge} />
+          <ChallengeEditor />
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+      <AlertDialog open={isDeleteModalOpen} onOpenChange={closeDeleteModal}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
               Are you sure you want to delete this challenge?
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              challenge.
-            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

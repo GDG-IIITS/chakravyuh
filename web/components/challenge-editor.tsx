@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -21,276 +23,347 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Plus, Trash } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { useChallengesContext } from "@/context/challengesContext";
 
-export default function ChallengeEditor(challenge: any) {
-  const [verificationMode, setVerificationMode] = useState("Mono");
+type Hint = {
+  text: string;
+  show: boolean;
+};
+
+type Challenge = {
+  title?: string;
+  no?: number;
+  summary?: string;
+  description?: string;
+  maxScore?: number;
+  startTime?: string;
+  endTime?: string;
+  flag?: string;
+  csv?: string;
+  tags?: string[];
+  submissionVerificationMode?: string;
+};
+
+export default function ChallengeEditor() {
+  const {
+    selectedChallenge,
+    updateChallenge,
+    addChallenge,
+    setSelectedChallenge,
+  } = useChallengesContext();
+
+  const [verificationMode, setVerificationMode] = useState("mono");
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [hints, setHints] = useState([{ text: "", show: false }]);
-  const totalPages = 4;
-  console.log(challenge);
+  const [hints, setHints] = useState<Hint[]>([{ text: "", show: false }]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
 
-  const handleSubmit = (event: any) => {
+  useEffect(() => {
+    if (selectedChallenge) {
+      setChallenge(selectedChallenge);
+      setVerificationMode(selectedChallenge.submissionVerificationMode);
+      // Convert hints from number to array of hint objects
+      const initialHints = Array.from(
+        { length: selectedChallenge.numHints || 1 },
+        () => ({ text: "", show: false })
+      );
+      setHints(initialHints);
+      setTags(selectedChallenge.tags || []);
+    }
+  }, [selectedChallenge]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    // Handle form submission
+    if (currentPage !== 4) return;
+
     setIsLoading(true);
+    try {
+      const challengeData = {
+        ...challenge,
+        tags: tags.filter((tag) => tag.trim() !== ""), // Remove empty tags
+        numHints: hints.filter((hint) => hint.text.trim() !== "").length, // Count non-empty hints
+        submissionVerificationMode: verificationMode,
+        hints: hints
+          .map((hint) => hint.text)
+          .filter((text) => text.trim() !== ""), // Save non-empty hint texts
+      };
+
+      if (selectedChallenge) {
+        // Update existing challenge
+        console.log("Updating challenge", challengeData);
+        await updateChallenge(selectedChallenge.id, challengeData);
+      } else {
+        // Add new challenge
+        console.log("Adding challenge", challengeData);
+        await addChallenge(challengeData);
+      }
+    } catch (error) {
+      console.error("Error saving challenge:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const addHint = () => {
-    setHints([...hints, { text: "", show: false }]);
-  };
+  const addHint = useCallback(() => {
+    setHints((prev) => [...prev, { text: "", show: false }]);
+  }, []);
 
-  const deleteHint = (index: any) => {
-    setHints(hints.filter((_, i) => i !== index));
-  };
+  const deleteHint = useCallback((index: number) => {
+    setHints((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
-  const updateHint = (index: any, newHint: any) => {
-    const newHints = [...hints];
-    newHints[index] = newHint;
-    setHints(newHints);
+  const updateHint = useCallback((index: number, text: string) => {
+    setHints((prev) => {
+      const newHints = [...prev];
+      newHints[index] = { ...newHints[index], text };
+      return newHints;
+    });
+  }, []);
+
+  const addTag = useCallback(() => {
+    setTags((prev) => [...prev, ""]);
+  }, []);
+
+  const deleteTag = useCallback((index: number) => {
+    setTags((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const updateTag = useCallback((index: number, value: string) => {
+    setTags((prev) => {
+      const newTags = [...prev];
+      newTags[index] = value;
+      return newTags;
+    });
+  }, []);
+
+  const handleInputChange = (field: keyof Challenge, value: any) => {
+    setChallenge((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto py">
+    <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <div className="mb-4">
-          <Progress
-            value={(currentPage / totalPages) * 100}
-            className="w-full"
-          />
+          <Progress value={(currentPage / 4) * 100} className="w-full" />
         </div>
-        <CardTitle>Add New Challenge</CardTitle>
+        <CardTitle>
+          {selectedChallenge ? "Edit Challenge" : "Add New Challenge"}
+        </CardTitle>
         <CardDescription>
-          Create a new digital treasure hunt challenge
+          {selectedChallenge
+            ? "Edit the details of the selected challenge"
+            : "Create a new digital treasure hunt challenge"}
         </CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit}>
+
+      <form onSubmit={(event) => event.preventDefault()}>
         <CardContent className="space-y-4">
           <div className="min-h-[300px]">
             {currentPage === 1 && (
               <>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="title">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    placeholder="Enter challenge title"
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="challengeNumber">
-                    Number
-                  </Label>
-                  <Input
-                    id="challengeNumber"
-                    type="number"
-                    placeholder="Enter challenge number"
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="challengeSummary">
-                    Summary
-                  </Label>
-                  <Textarea
-                    id="challengeSummary"
-                    placeholder="Enter challenge summary"
-                    required
-                  />
-                </div>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="maxScore">
-                    Max Score
-                  </Label>
-                  <Input
-                    id="maxScore"
-                    type="number"
-                    placeholder="Enter max score"
-                    required
-                  />
-                </div>
+                <InputField
+                  label="Title"
+                  id="title"
+                  placeholder="Enter challenge title"
+                  value={challenge?.title || ""}
+                  required
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                />
+                <InputField
+                  label="Number"
+                  id="challengeNumber"
+                  type="number"
+                  placeholder="Enter challenge number"
+                  value={challenge?.no || ""}
+                  required
+                  onChange={(e) =>
+                    handleInputChange("no", Number(e.target.value))
+                  }
+                />
+                <TextareaField
+                  label="Summary"
+                  id="challengeSummary"
+                  placeholder="Enter challenge summary"
+                  value={challenge?.summary || ""}
+                  onChange={(e) => handleInputChange("summary", e.target.value)}
+                />
+                <InputField
+                  label="Max Score"
+                  id="maxScore"
+                  type="number"
+                  placeholder="Enter max score"
+                  value={challenge?.maxScore || ""}
+                  required
+                  onChange={(e) =>
+                    handleInputChange("maxScore", Number(e.target.value))
+                  }
+                />
               </>
             )}
+
             {currentPage === 2 && (
               <>
-                <div className="mb-2 h-3/4">
-                  <Label className="ml-1" htmlFor="description">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    rows={10}
-                    placeholder="Enter challenge description"
+                <TextareaField
+                  label="Description"
+                  id="description"
+                  placeholder="Enter challenge description"
+                  rows={10}
+                  value={challenge?.description || ""}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField
+                    label="Start Time"
+                    id="startTime"
+                    type="datetime-local"
+                    value={challenge?.startTime || ""}
                     required
-                    className="h-full"
+                    onChange={(e) =>
+                      handleInputChange("startTime", e.target.value)
+                    }
+                  />
+                  <InputField
+                    label="End Time"
+                    id="endTime"
+                    type="datetime-local"
+                    value={challenge?.endTime || ""}
+                    required
+                    onChange={(e) =>
+                      handleInputChange("endTime", e.target.value)
+                    }
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="startTime">
-                      Start Time
-                    </Label>
-                    <Input id="startTime" type="datetime-local" required />
-                  </div>
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="endTime">
-                      End Time
-                    </Label>
-                    <Input id="endTime" type="datetime-local" required />
-                  </div>
-                </div>
               </>
             )}
+
             {currentPage === 3 && (
               <>
-                <div className="mb-2">
-                  <Label className="ml-1" htmlFor="verificationMode">
-                    Verification Mode
-                  </Label>
-                  <Select
-                    value={verificationMode}
-                    onValueChange={setVerificationMode}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select verification mode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Mono">Mono</SelectItem>
-                      <SelectItem value="Unique">Unique</SelectItem>
-                      <SelectItem value="Custom">Custom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {verificationMode === "Mono" && (
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="flag">
-                      Flag
-                    </Label>
-                    <Input id="flag" placeholder="Enter flag" required />
-                  </div>
+                <SelectField
+                  label="Verification Mode"
+                  value={verificationMode}
+                  options={["mono", "unique", "custom"]}
+                  onChange={setVerificationMode}
+                />
+                {verificationMode === "mono" && (
+                  <InputField
+                    label="Flag"
+                    id="flag"
+                    placeholder="Enter flag"
+                    value={challenge?.flag || ""}
+                    required
+                    onChange={(e) => handleInputChange("flag", e.target.value)}
+                  />
                 )}
-                {verificationMode === "Unique" && (
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="csv">
-                      Paste CSV Text
-                    </Label>
-                    <Textarea
-                      id="csv"
-                      rows={10}
-                      placeholder="Paste CSV text"
-                      required
-                    />
-                  </div>
-                )}
-                {verificationMode === "Custom" && (
-                  <div className="mb-2">
-                    <Label className="ml-1" htmlFor="apiKey">
-                      API Key
-                    </Label>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        id="apiKey"
-                        type={isApiKeyVisible ? "text" : "password"}
-                        placeholder="Enter API key"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        onClick={() => setIsApiKeyVisible(!isApiKeyVisible)}
-                      >
-                        {isApiKeyVisible ? "Hide" : "Show"}
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          navigator.clipboard.writeText(
-                            (
-                              document.getElementById(
-                                "apiKey"
-                              ) as HTMLInputElement
-                            )?.value
-                          )
-                        }
-                      >
-                        Copy
-                      </Button>
-                    </div>
-                  </div>
+                {verificationMode === "unique" && (
+                  <TextareaField
+                    label="Paste CSV Text"
+                    id="csv"
+                    value={challenge?.csv || ""}
+                    placeholder="Paste CSV text"
+                    rows={10}
+                    required
+                    onChange={(e) => handleInputChange("csv", e.target.value)}
+                  />
                 )}
               </>
             )}
+
             {currentPage === 4 && (
               <>
-                <div className="mb-2">
+                <div className="space-y-2">
                   <Label className="ml-1">Hints</Label>
-                  {hints.map((hint, index) => (
-                    <div
-                      key={index}
-                      className="mb-2 flex items-center space-x-2"
-                    >
-                      <Textarea
-                        value={hint.text}
-                        onChange={(e) =>
-                          updateHint(index, { ...hint, text: e.target.value })
-                        }
-                        placeholder="Enter hint text"
-                        required
-                      />
-
-                      <label className="flex items-center space-x-2">
-                        <Switch
-                          checked={hint.show}
-                          onCheckedChange={(checked) =>
-                            updateHint(index, { ...hint, show: checked })
-                          }
+                  <div className="space-y-2">
+                    {hints.map((hint, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Textarea
+                          value={hint.text}
+                          onChange={(e) => updateHint(index, e.target.value)}
+                          placeholder="Enter hint text"
                         />
-                      </label>
-                      <Button
-                        type="button"
-                        onClick={() => deleteHint(index)}
-                        className="p-2 bg-white hover:bg-gray-100"
-                      >
-                        <Trash size={16} className="text-black" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    onClick={addHint}
-                    className="flex items-center space-x-2"
-                  >
-                    <Plus size={16} />
-                    <span>Add</span>
-                  </Button>
+                        <Button
+                          type="button"
+                          onClick={() => deleteHint(index)}
+                          variant="destructive"
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      onClick={addHint}
+                      className="flex items-center space-x-2"
+                    >
+                      <Plus size={16} />
+                      <span>Add Hint</span>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mt-4">
+                  <Label className="ml-1">Tags</Label>
+                  <div className="space-y-2">
+                    {tags.map((tag, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Input
+                          value={tag}
+                          onChange={(e) => updateTag(index, e.target.value)}
+                          placeholder="Enter tag"
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => deleteTag(index)}
+                          variant="destructive"
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      onClick={addTag}
+                      className="flex items-center space-x-2"
+                    >
+                      <Plus size={16} />
+                      <span>Add Tag</span>
+                    </Button>
+                  </div>
                 </div>
               </>
             )}
           </div>
         </CardContent>
+
         <CardFooter className="flex justify-between">
-          {currentPage > 1 && (
-            <Button
-              type="button"
-              onClick={() => setCurrentPage(currentPage - 1)}
-            >
-              Previous
-            </Button>
-          )}
-          {currentPage < 4 && (
+          <Button
+            type="button"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          {currentPage < 4 ? (
             <Button
               type="button"
               onClick={() => setCurrentPage(currentPage + 1)}
-              className={currentPage === 1 ? "ml-auto" : ""}
+              disabled={currentPage === 4}
             >
               Next
             </Button>
-          )}
-          {currentPage === 4 && (
-            <Button type="submit" className="ml-auto" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Challenge"}
+          ) : (
+            <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
+              {isLoading
+                ? "Saving..."
+                : selectedChallenge
+                ? "Update Challenge"
+                : "Create Challenge"}
             </Button>
           )}
         </CardFooter>
@@ -298,3 +371,69 @@ export default function ChallengeEditor(challenge: any) {
     </Card>
   );
 }
+
+const InputField = ({
+  label,
+  id,
+  type = "text",
+  placeholder,
+  required = false,
+  value,
+  onChange,
+}) => (
+  <div className="mb-2">
+    <Label className="ml-1" htmlFor={id}>
+      {label}
+    </Label>
+    <Input
+      id={id}
+      type={type}
+      placeholder={placeholder}
+      required={required}
+      value={value}
+      onChange={onChange}
+    />
+  </div>
+);
+
+const TextareaField = ({
+  label,
+  id,
+  placeholder,
+  rows = 4,
+  required = false,
+  value,
+  onChange,
+}) => (
+  <div className="mb-2">
+    <Label className="ml-1" htmlFor={id}>
+      {label}
+    </Label>
+    <Textarea
+      id={id}
+      rows={rows}
+      placeholder={placeholder}
+      required={required}
+      value={value}
+      onChange={onChange}
+    />
+  </div>
+);
+
+const SelectField = ({ label, value, options, onChange }) => (
+  <div className="mb-2">
+    <Label className="ml-1">{label}</Label>
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select" />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option} value={option}>
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
