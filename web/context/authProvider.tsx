@@ -64,6 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
+            accept: "application/json",
           },
         }
       );
