@@ -70,6 +70,7 @@ export class TeamsService {
       team['members'] = [userId];
       await team.save();
     }
+    console.log('Joined team succesfully');
     return team;
   }
 
