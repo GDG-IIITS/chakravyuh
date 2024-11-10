@@ -50,11 +50,11 @@ export class AuthGuard implements CanActivate {
     );
     request['user'] = user;
     request['session'] = session;
-    if (!allowInactive && !user.isActive) {
-      throw new UnauthorizedException(
-        'User account is not activated! May be try verifying your email?',
-      );
-    }
+    // if (!allowInactive && !user.isActive) {
+    //   throw new UnauthorizedException(
+    //     'User account is not activated! May be try verifying your email?',
+    //   );
+    // }
     return request['user'].isActive || allowInactive;
   }
 }
