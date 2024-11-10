@@ -128,9 +128,12 @@ export default function UsersPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("https://api.chakravyuh.live/users", {
-          withCredentials: true, // Include cookies in the request
-        });
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/users`,
+          {
+            withCredentials: true, // Include cookies in the request
+          }
+        );
 
         setUsers(response.data); // Assuming the response data is an array of users
       } catch (error) {
