@@ -12,6 +12,7 @@ import axios from "axios";
 type Challenge = {
   id: string;
   title: string;
+  description: string;
   no: number;
   summary: string;
   creator: string;

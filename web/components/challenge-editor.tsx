@@ -78,6 +78,7 @@ export default function ChallengeEditor() {
       // Call addChallenge from context
       addChallenge({
         title: Challenge?.title || "",
+        description: Challenge?.description || "",
         no: Challenge?.no || 0,
         summary: Challenge?.summary || "",
         creator: "",
