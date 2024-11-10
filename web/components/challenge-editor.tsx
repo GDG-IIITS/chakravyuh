@@ -22,28 +22,30 @@ import { Progress } from "@/components/ui/progress";
 import { Plus, Trash } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
-export default function ChallengeEditor() {
+export default function ChallengeEditor(challenge: any) {
   const [verificationMode, setVerificationMode] = useState("Mono");
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hints, setHints] = useState([{ text: "", show: false }]);
   const totalPages = 4;
+  console.log(challenge);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: any) => {
     event.preventDefault();
     // Handle form submission
+    setIsLoading(true);
   };
 
   const addHint = () => {
     setHints([...hints, { text: "", show: false }]);
   };
 
-  const deleteHint = (index) => {
+  const deleteHint = (index: any) => {
     setHints(hints.filter((_, i) => i !== index));
   };
 
-  const updateHint = (index, newHint) => {
+  const updateHint = (index: any, newHint: any) => {
     const newHints = [...hints];
     newHints[index] = newHint;
     setHints(newHints);
@@ -205,7 +207,11 @@ export default function ChallengeEditor() {
                         type="button"
                         onClick={() =>
                           navigator.clipboard.writeText(
-                            document.getElementById("apiKey").value
+                            (
+                              document.getElementById(
+                                "apiKey"
+                              ) as HTMLInputElement
+                            )?.value
                           )
                         }
                       >

@@ -5,7 +5,7 @@ import axios, { AxiosResponse } from "axios";
 import { set } from "date-fns";
 
 interface AuthContextType {
-  user: { id: string; email: string; fullName: string } | null;
+  user: { id: string; email: string; fullName: string; role: string } | null;
   login: (email: string, password: string) => Promise<AxiosResponse<any>>;
   signup: (
     email: string,

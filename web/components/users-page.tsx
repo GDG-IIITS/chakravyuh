@@ -24,16 +24,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ArrowUpDown, Edit, MoreVertical, Search, Trash2 } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ArrowUpDown, Edit, MoreVertical, Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import axios from "axios";
@@ -53,63 +45,63 @@ interface User {
 }
 
 // Mock data for demonstration
-const mockUsers = [
-  {
-    fullName: "John Doe",
-    email: "john@example.com",
-    ug: "UG1",
-    role: "user",
-    joined: new Date("2023-01-15"),
-    lastLogin: new Date("2023-06-01"),
-    isActive: true,
-    emailVerified: true,
-    teamName: "Team A",
-  },
-  {
-    fullName: "Jane Smith",
-    email: "jane@example.com",
-    ug: "UG2",
-    role: "admin",
-    joined: new Date("2023-02-20"),
-    lastLogin: new Date("2023-05-30"),
-    isActive: true,
-    emailVerified: true,
-    teamName: "Team B",
-  },
-  {
-    fullName: "Alice Johnson",
-    email: "alice@example.com",
-    ug: "UG1",
-    role: "user",
-    joined: new Date("2023-03-10"),
-    lastLogin: new Date("2023-05-28"),
-    isActive: false,
-    emailVerified: true,
-    teamName: "Team A",
-  },
-  {
-    fullName: "Bob Williams",
-    email: "bob@example.com",
-    ug: "UG3",
-    role: "user",
-    joined: new Date("2023-04-05"),
-    lastLogin: new Date("2023-05-25"),
-    isActive: true,
-    emailVerified: false,
-    teamName: "Team C",
-  },
-  {
-    fullName: "Charlie Brown",
-    email: "charlie@example.com",
-    ug: "UG2",
-    role: "superuser",
-    joined: new Date("2023-05-01"),
-    lastLogin: new Date("2023-06-02"),
-    isActive: true,
-    emailVerified: true,
-    teamName: "Team B",
-  },
-];
+// const mockUsers = [
+//   {
+//     fullName: "John Doe",
+//     email: "john@example.com",
+//     ug: "UG1",
+//     role: "user",
+//     joined: new Date("2023-01-15"),
+//     lastLogin: new Date("2023-06-01"),
+//     isActive: true,
+//     emailVerified: true,
+//     teamName: "Team A",
+//   },
+//   {
+//     fullName: "Jane Smith",
+//     email: "jane@example.com",
+//     ug: "UG2",
+//     role: "admin",
+//     joined: new Date("2023-02-20"),
+//     lastLogin: new Date("2023-05-30"),
+//     isActive: true,
+//     emailVerified: true,
+//     teamName: "Team B",
+//   },
+//   {
+//     fullName: "Alice Johnson",
+//     email: "alice@example.com",
+//     ug: "UG1",
+//     role: "user",
+//     joined: new Date("2023-03-10"),
+//     lastLogin: new Date("2023-05-28"),
+//     isActive: false,
+//     emailVerified: true,
+//     teamName: "Team A",
+//   },
+//   {
+//     fullName: "Bob Williams",
+//     email: "bob@example.com",
+//     ug: "UG3",
+//     role: "user",
+//     joined: new Date("2023-04-05"),
+//     lastLogin: new Date("2023-05-25"),
+//     isActive: true,
+//     emailVerified: false,
+//     teamName: "Team C",
+//   },
+//   {
+//     fullName: "Charlie Brown",
+//     email: "charlie@example.com",
+//     ug: "UG2",
+//     role: "superuser",
+//     joined: new Date("2023-05-01"),
+//     lastLogin: new Date("2023-06-02"),
+//     isActive: true,
+//     emailVerified: true,
+//     teamName: "Team B",
+//   },
+// ];
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -195,7 +187,7 @@ export default function UsersPage() {
           <Checkbox
             id="isActive"
             checked={isActiveFilter}
-            onCheckedChange={setIsActiveFilter}
+            onCheckedChange={(checked) => setIsActiveFilter(checked === true)}
           />
           <label
             htmlFor="isActive"
@@ -208,7 +200,9 @@ export default function UsersPage() {
           <Checkbox
             id="emailVerified"
             checked={emailVerifiedFilter}
-            onCheckedChange={setEmailVerifiedFilter}
+            onCheckedChange={(checked) =>
+              setEmailVerifiedFilter(checked === true)
+            }
           />
           <label
             htmlFor="emailVerified"
