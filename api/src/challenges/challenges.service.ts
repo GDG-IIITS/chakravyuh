@@ -142,9 +142,12 @@ export class ChallengesService {
 
   async myTodo(userId: string): Promise<Challenge> {
     const team = await this.teamsService.my(userId);
-    // TODO: canSubmit can be called to check start/end time validity
     const nextChallenge = await this.challengeModel
-      .findOne({ no: team.score + 1 })
+      .findOne({
+        no: team.score + 1,
+        startTime: { $lte: new Date() },
+        endTime: { $gte: new Date() },
+      })
       .select('-submissionVerification')
       .populate('creator', 'fullName')
       .exec();
