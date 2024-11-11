@@ -16,11 +16,13 @@ import { Team, TeamDocument } from './teams.schema';
 export class TeamsService {
   constructor(
     @InjectModel(Team.name) private teamsModel: Model<TeamDocument>,
+
     private readonly userService: UsersService,
   ) {}
 
   async create(userId: string, createTeamDto: CreateTeamDto): Promise<Team> {
     const lead = await this.userService.findById(userId);
+    console.log(lead);
     if (lead.team) {
       throw new ForbiddenException('User already in a team');
     }
@@ -29,7 +31,7 @@ export class TeamsService {
       lead: userId,
       ug: lead.ug,
     });
-    const team = await newTeam.save();
+    const team = await (await newTeam.save()).populate('lead', 'fullName');
     const user = await this.userService.findById(userId);
     user.team = newTeam.id;
     await user.save();
@@ -44,7 +46,16 @@ export class TeamsService {
     const user = await this.userService.findById(userId);
 
     if (user.team) {
-      throw new ForbiddenException('User already in a team');
+      // check if in the members array, if not clear the team field from user
+      if (!team.members.includes(userId)) {
+        user.team = null;
+        await user.save();
+        throw new ForbiddenException(
+          'Something went wrong, we have written some code to auto-fix it please try joining the team once more',
+        );
+      } else {
+        throw new ForbiddenException('User already in a team');
+      }
     }
 
     if (team.members && team.members.length >= appConfig.maxTeamSize - 1) {
@@ -68,15 +79,24 @@ export class TeamsService {
       } else {
         team.members.push(userId);
       }
-      await team.save();
+      const pTeam = (await team.save()).populate([
+        {
+          path: 'lead',
+          select: 'fullName',
+        },
+        {
+          path: 'members',
+          select: 'fullName',
+        },
+      ]);
+      console.log('Joined team succesfully');
+      return pTeam;
     } catch (e) {
       throw new ForbiddenException(
         'Failed to join team! Please report to admins',
         e,
       );
     }
-    console.log('Joined team succesfully');
-    return team;
   }
 
   async my(userId: string): Promise<Team> {
