@@ -315,7 +315,7 @@ export class ChallengesService {
       )
       .exec();
     if (!updatedChallenge) {
-      throw new NotFoundException(
+      throw new ForbiddenException(
         `Challenge with ID ${id} not found, or you do not have permission to update it`,
       );
     }
@@ -327,7 +327,9 @@ export class ChallengesService {
       .findOneAndDelete({ _id: id, creator: userId })
       .exec();
     if (!removedChallenge) {
-      throw new NotFoundException(`Challenge with ID ${id} not found`);
+      throw new ForbiddenException(
+        `Challenge with ID ${id} not found, or might not have sufficient permissions to delete it`,
+      );
     }
     return removedChallenge;
   }
