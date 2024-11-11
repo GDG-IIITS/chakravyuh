@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
 
 interface AuthContextType {
-  user: { id: string; email: string; fullName: string; role: string } | null;
+  user: { _id: string; email: string; fullName: string; role: string } | null;
   login: (email: string, password: string) => Promise<AxiosResponse<any>>;
   signup: (
     email: string,
