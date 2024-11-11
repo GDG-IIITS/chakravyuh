@@ -279,7 +279,7 @@ export class ChallengesService {
     const team = await this.teamsService.findById(createScoreDto.team);
     const challenge = await this.findOne(createScoreDto.challenge);
     const user = await this.usersService.findById(userId);
-    if (challenge.creator != userId || user.role != URoles.superuser) {
+    if (challenge.creator != userId && user.role != URoles.superuser) {
       throw new ForbiddenException(
         'Only the creator of the challenge can mark it as done for a participant. Contact superuser for help!',
       );
