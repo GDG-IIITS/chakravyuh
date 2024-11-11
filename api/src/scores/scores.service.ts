@@ -31,7 +31,19 @@ export class ScoresService {
     if (user.role === URoles.user) {
       query['team'] = user.team;
     }
-    return this.scoreModel.find(query).exec();
+    return this.scoreModel
+      .find(query)
+      .populate([
+        {
+          path: 'team',
+          select: 'name',
+        },
+        {
+          path: 'challenge',
+          select: 'title',
+        },
+      ])
+      .exec();
   }
 
   async findOne(id: string): Promise<Score> {
