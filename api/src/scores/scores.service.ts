@@ -6,20 +6,16 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChallengesService } from 'src/challenges/challenges.service';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { Score, ScoreDocument } from './scores.schema';
 import { UsersService } from 'src/users/users.service';
 import { URoles } from 'src/users/users.schema';
-import { TeamsService } from 'src/teams/teams.service';
 
 @Injectable()
 export class ScoresService {
   constructor(
     @InjectModel(Score.name) private scoreModel: Model<ScoreDocument>,
-    @Inject(forwardRef(() => ChallengesService))
     private readonly usersService: UsersService,
-    private readonly teamsService: TeamsService,
   ) {}
 
   async create(createScoreDto: CreateScoreDto): Promise<Score> {
