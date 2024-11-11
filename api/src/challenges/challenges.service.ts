@@ -145,8 +145,6 @@ export class ChallengesService {
     const nextChallenge = await this.challengeModel
       .findOne({
         no: team.score + 1,
-        startTime: { $lte: new Date() },
-        endTime: { $gte: new Date() },
       })
       .select('-submissionVerification')
       .populate('creator', 'fullName')
