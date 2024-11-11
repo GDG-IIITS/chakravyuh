@@ -25,7 +25,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ArrowUpDown, Copy, Edit, MoreVertical, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  Copy,
+  Download,
+  Edit,
+  MoreVertical,
+  Search,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import axios from "axios";
@@ -167,6 +174,17 @@ export default function UsersPage() {
     }
   };
 
+  const handleDownload = () => {
+    const userEmails = users.map((user) => user.email).join("\n");
+    const blob = new Blob([userEmails], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "user_emails.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="container mx-auto py-4">
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -218,6 +236,14 @@ export default function UsersPage() {
             Email Verified
           </label>
         </div>
+        <Button
+          variant="default"
+          className="bg-black text-white ml-4"
+          onClick={handleDownload}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Download Emails
+        </Button>
       </div>
 
       <div className="rounded-md border">

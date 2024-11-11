@@ -1,16 +1,28 @@
-'use client'
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { LogOut } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { AuthContext } from "@/context/authProvider";
+import { LogOut } from "lucide-react";
+import { useContext } from "react";
 
-export function SidebarUserCard({ username = "Jane Doe", role = "Admin", avatarSrc = "" }: { username?: string, role?: string, avatarSrc?: string }) {
+export function SidebarUserCard({
+  username = "Jane Doe",
+  role = "Admin",
+  avatarSrc = "",
+}: {
+  username?: string;
+  role?: string;
+  avatarSrc?: string;
+}) {
+  const { logout } = useContext(AuthContext);
   const handleLogout = () => {
     // Implement logout logic here
-    console.log("Logging out...")
-  }
+    logout();
+    console.log("Logging out...");
+  };
 
   return (
     <Card className="w-full bg-sidebar">
@@ -18,12 +30,16 @@ export function SidebarUserCard({ username = "Jane Doe", role = "Admin", avatarS
         <div className="flex flex-1 items-center space-x-4 p-3">
           <Avatar className="h-9 w-9">
             <AvatarImage src={avatarSrc} alt={username} />
-            <AvatarFallback>{username.slice(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>
+              {username.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium text-sidebar-foreground">{username}</p>
+            <p className="text-sm font-medium text-sidebar-foreground overflow-hidden max-w-[3.8rem]">
+              {username}
+            </p>
             <Badge variant="secondary" className="text-xs">
-              {role}
+              {role == "superuser" ? "Sudo" : role}
             </Badge>
           </div>
         </div>
@@ -37,5 +53,5 @@ export function SidebarUserCard({ username = "Jane Doe", role = "Admin", avatarS
         </Button>
       </div>
     </Card>
-  )
+  );
 }
