@@ -200,6 +200,7 @@ export default function TeamsPageComponent() {
                 </div>
               </TableHead>
               <TableHead>Team lead email</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

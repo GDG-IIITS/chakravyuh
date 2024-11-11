@@ -8,10 +8,16 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UserEditorProps {
   user: any; // User data
@@ -57,7 +63,7 @@ const UserEditor: React.FC<UserEditorProps> = ({
   return (
     <Card className="w-full max-w-2xl mx-auto py">
       <CardHeader>
-        <CardTitle>Edit User Role</CardTitle>
+        <CardTitle>Edit Role</CardTitle>
         <CardDescription>
           Edit the user roles among user/admin/superuser
         </CardDescription>
@@ -69,15 +75,16 @@ const UserEditor: React.FC<UserEditorProps> = ({
               <Label className="ml-1" htmlFor="role">
                 Role
               </Label>
-              <Input
-                id="role"
-                value={editRoleValue}
-                onChange={(e) => setEditRoleValue(e.target.value)}
-              />
-            </div>
-            <div className="text-xs py-2 text-slate-800">
-              NOTE : You cannot change a user role to admin/superuser if their
-              email is not verified{" "}
+              <Select value={editRoleValue} onValueChange={setEditRoleValue}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="superuser">Superuser</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>

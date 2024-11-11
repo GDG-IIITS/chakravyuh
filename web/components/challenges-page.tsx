@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, MoreVertical, Edit, Trash2, Plus } from "lucide-react";
+import { Search, MoreVertical, Edit, Trash2, Plus, Copy } from "lucide-react";
 import ChallengeEditor from "./challenge-editor";
 
 export function ChallengesPage() {
@@ -108,7 +108,7 @@ export function ChallengesPage() {
             <TableRow key={challenge._id}>
               <TableCell>{challenge.no}</TableCell>
               <TableCell>{challenge.title}</TableCell>
-              <TableCell>{challenge.creator}</TableCell>
+              <TableCell>{challenge.creator.fullName}</TableCell>
               <TableCell>{challenge.tags.join(", ") || "N/A"}</TableCell>
               <TableCell>{challenge.submissionVerification.kind}</TableCell>
               <TableCell>{challenge.hints.length}</TableCell>
@@ -142,6 +142,15 @@ export function ChallengesPage() {
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedChallenge(mapToChallengeType(challenge));
+                        navigator.clipboard.writeText(challenge._id);
+                      }}
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy ID
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

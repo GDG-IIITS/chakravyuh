@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,13 +25,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ArrowUpDown, Edit, MoreVertical, Search } from "lucide-react";
+import { ArrowUpDown, Copy, Edit, MoreVertical, Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import axios from "axios";
 import UserEditor from "./users-editor";
+import { AuthContext } from "@/context/authProvider";
 
 interface User {
+  _id: string;
   fullName: string;
   email: string;
   ug: string;
@@ -106,6 +108,8 @@ interface User {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
 
+  const { user: currentUser } = useContext(AuthContext);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [sortField, setSortField] = useState("joined");
@@ -134,7 +138,7 @@ export default function UsersPage() {
     };
 
     fetchUsers();
-  }, [setIsEditModalOpen]);
+  }, [isEditModalOpen]);
 
   if (selectedRole === "--") {
     setSelectedRole("");
@@ -238,7 +242,7 @@ export default function UsersPage() {
               </TableHead>
               <TableHead>Is Active</TableHead>
               <TableHead>Email Verified</TableHead>
-              <TableHead>Team Name</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -252,7 +256,7 @@ export default function UsersPage() {
                 <TableCell>{format(user.lastLogin, "PP")}</TableCell>
                 <TableCell>{user.isActive ? "Yes" : "No"}</TableCell>
                 <TableCell>{user.emailVerified ? "Yes" : "No"}</TableCell>
-                <TableCell>{user.teamName}</TableCell>
+
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -261,14 +265,25 @@ export default function UsersPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      {currentUser?.role === "superuser" ? (
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setIsEditModalOpen(true);
+                          }}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                      ) : null}
                       <DropdownMenuItem
                         onClick={() => {
                           setSelectedUser(user);
-                          setIsEditModalOpen(true);
+                          navigator.clipboard.writeText(user._id);
                         }}
                       >
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy User ID
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
