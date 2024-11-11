@@ -24,7 +24,10 @@ type Challenge = {
   submissionVerificationMode: string;
   flag?: string;
   csv?: string;
-  numHints: number;
+  hints: {
+    text: string;
+    show: boolean;
+  }[];
   startTime?: string;
   endTime?: string;
 };
@@ -157,12 +160,6 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
         {
           ...challenge,
           tags: challenge.tags,
-          hints: challenge.numHints
-            ? Array(challenge.numHints).fill({
-                text: "Some hint here",
-                show: false,
-              })
-            : [],
         },
         {
           withCredentials: true,
@@ -180,6 +177,16 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
   const updateChallenge = async (id: string, challenge: Partial<Challenge>) => {
     try {
       // Prepare the update payload
+      console.log(
+        "update payload " +
+          {
+            ...challenge,
+            submissionVerification: {
+              kind: challenge.submissionVerificationMode,
+              flag: challenge.flag,
+            },
+          }
+      );
       const updatePayload = {
         ...challenge,
         submissionVerification: {

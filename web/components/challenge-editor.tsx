@@ -23,6 +23,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Plus, Trash } from "lucide-react";
 import { useChallengesContext } from "@/context/challengesContext";
+import { Switch } from "./ui/switch";
 
 type Hint = {
   text: string;
@@ -58,12 +59,7 @@ export default function ChallengeEditor() {
     if (selectedChallenge) {
       setChallenge(selectedChallenge);
       setVerificationMode(selectedChallenge.submissionVerificationMode);
-      // Convert hints from number to array of hint objects
-      const initialHints = Array.from(
-        { length: selectedChallenge.numHints || 1 },
-        () => ({ text: "", show: false })
-      );
-      setHints(initialHints);
+      setHints(selectedChallenge.hints || []);
       setTags(selectedChallenge.tags || []);
     }
   }, [selectedChallenge]);
@@ -79,11 +75,8 @@ export default function ChallengeEditor() {
         ...challenge,
 
         tags: tags.filter((tag) => tag.trim() !== ""), // Remove empty tags
-        numHints: hints.filter((hint) => hint.text.trim() !== "").length, // Count non-empty hints
         submissionVerificationMode: verificationMode,
-        hints: hints
-          .map((hint) => hint.text)
-          .filter((text) => text.trim() !== ""), // Save non-empty hint texts
+        hints: hints,
       };
 
       if (selectedChallenge) {
@@ -110,10 +103,10 @@ export default function ChallengeEditor() {
     setHints((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  const updateHint = useCallback((index: number, text: string) => {
+  const updateHint = useCallback((index: number, updatedHint: Hint) => {
     setHints((prev) => {
       const newHints = [...prev];
-      newHints[index] = { ...newHints[index], text };
+      newHints[index] = updatedHint;
       return newHints;
     });
   }, []);
@@ -288,20 +281,36 @@ export default function ChallengeEditor() {
                   <div className="space-y-2">
                     {hints.map((hint, index) => (
                       <div key={index} className="flex items-center space-x-2">
-                        <Textarea
-                          value={hint.text}
-                          onChange={(e: any) =>
-                            updateHint(index, e.target.value)
-                          }
-                          placeholder="Enter hint text"
-                        />
-                        <Button
-                          type="button"
-                          onClick={() => deleteHint(index)}
-                          variant="destructive"
-                        >
-                          <Trash size={16} />
-                        </Button>
+                        <div className="flex-grow">
+                          <Textarea
+                            value={hint.text}
+                            onChange={(e) =>
+                              updateHint(index, {
+                                ...hint,
+                                text: e.target.value,
+                              })
+                            }
+                            placeholder="Enter hint text"
+                          />
+                        </div>
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              checked={hint.show}
+                              onCheckedChange={(checked) =>
+                                updateHint(index, { ...hint, show: checked })
+                              }
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={() => deleteHint(index)}
+                            variant="destructive"
+                            size="sm"
+                          >
+                            <Trash size={16} />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     <Button

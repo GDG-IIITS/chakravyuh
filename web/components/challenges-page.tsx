@@ -64,7 +64,7 @@ export function ChallengesPage() {
       submissionVerificationMode: challenge.submissionVerification.kind,
       flag: challenge.submissionVerification.flag || "",
       csv: challenge.csv || "",
-      numHints: challenge.hints ? challenge.hints.length : 0,
+      hints: challenge.hints || [],
       startTime: challenge.startTime,
       endTime: challenge.endTime,
     };
