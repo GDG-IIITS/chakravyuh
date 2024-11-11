@@ -65,13 +65,15 @@ export class TeamsService {
     try {
       if (!team.members || team.members.length === 0) {
         team['members'] = [userId];
+      } else {
+        team.members.push(userId);
       }
-
       await team.save();
     } catch (e) {
-      console.log(e);
-      team['members'] = [userId];
-      await team.save();
+      throw new ForbiddenException(
+        'Failed to join team! Please report to admins',
+        e,
+      );
     }
     console.log('Joined team succesfully');
     return team;
