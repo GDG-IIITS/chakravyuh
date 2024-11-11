@@ -71,7 +71,7 @@ export function ChallengesPage() {
   }
 
   const canEditChallenge = (challenge: any) => {
-    return challenge.creator._id === user.id || user.role === "superuser";
+    return challenge.creator._id === user._id || user.role === "superuser";
   };
 
   return (
