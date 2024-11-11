@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Trophy, Users2, Github, LogOut } from "lucide-react";
+import { Users, Trophy, Users2 } from "lucide-react";
 import { SidebarUserCard } from "./sidebar-user-card";
 
 import {
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useContext } from "react";
 import { AuthContext } from "@/context/authProvider";
-import { Button } from "./ui/button";
 
 const sidebarItems = [
   { name: "Users", icon: Users, href: "/admin/users" },

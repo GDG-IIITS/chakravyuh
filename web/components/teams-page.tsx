@@ -205,7 +205,7 @@ export default function TeamsPageComponent() {
           </TableHeader>
           <TableBody>
             {filteredAndSortedTeams.map((team) => (
-              <TableRow key={team.name}>
+              <TableRow key={team._id}>
                 <TableCell className="font-medium">{team.name}</TableCell>
                 <TableCell>{team.ug}</TableCell>
                 <TableCell>{team.lead.fullName}</TableCell>

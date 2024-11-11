@@ -4,7 +4,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { AuthContext } from "@/context/authProvider";
 import { LogOut } from "lucide-react";
+import { useContext } from "react";
 
 export function SidebarUserCard({
   username = "Jane Doe",
@@ -15,8 +17,10 @@ export function SidebarUserCard({
   role?: string;
   avatarSrc?: string;
 }) {
+  const { logout } = useContext(AuthContext);
   const handleLogout = () => {
     // Implement logout logic here
+    logout();
     console.log("Logging out...");
   };
 
