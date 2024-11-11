@@ -105,13 +105,13 @@ export class ChallengesService {
     if (!challenge) {
       throw new NotFoundException(`Challenge with given not found`);
     }
-    // const now = Date.now();
-    // if (
-    //   now < challenge.startTime.getTime() ||
-    //   now > challenge.endTime.getTime()
-    // ) {
-    //   throw new NotAcceptableException('Challenge is not active');
-    // }
+    const now = Date.now();
+    if (
+      now > challenge.startTime.getTime() ||
+      now < challenge.endTime.getTime()
+    ) {
+      throw new NotAcceptableException('Challenge is not active');
+    }
     if (!team) {
       throw new NotFoundException('Team not found');
     }
