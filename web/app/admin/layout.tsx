@@ -1,9 +1,9 @@
-// app/admin/layout.tsx
 "use client";
 
-import { useContext, useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { AuthContext } from "@/context/authProvider";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { AppSidebar } from "@/components/sidebar";
 
 export default function AdminLayout({
@@ -11,23 +11,40 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { user, isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
   const router = useRouter();
 
-  // Authentication check: redirect to login page if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/auth/login");
-    }
-  }, [isAuthenticated, router]);
+    const checkAuthentication = async () => {
+      try {
+        const response = await axios.get(
+          "https://api.chakravyuh.live/auth/me",
+          { withCredentials: true }
+        );
 
-  // If user is not authenticated, show loading until the redirect is handled
+        if (response?.data?.email) {
+          setIsAuthenticated(true);
+        } else {
+          throw new Error("Not authenticated");
+        }
+      } catch (error) {
+        console.error("User not authenticated:", error);
+        setIsAuthenticated(false);
+        router.push("/auth/login"); // Redirect to login if not authenticated
+      }
+    };
+
+    checkAuthentication();
+  }, [router, setIsAuthenticated]);
+
+  // Show a loading message while checking authentication
   if (!isAuthenticated) {
-    return <div>Loading...</div>; // You can customize this part with a spinner or any loading message
+    return <div>Loading...</div>;
   }
 
-  if (user?.role === "user") {
-    return <div>Unauthorized !! You are a user</div>;
+  // If the authenticated user is not an admin, block access
+  if (user?.role == "user") {
+    return <div>Unauthorized! You are a user.</div>;
   }
 
   return (
@@ -35,10 +52,7 @@ export default function AdminLayout({
       <div>
         <AppSidebar />
       </div>
-
-      <div className="flex-1 overflow-y-auto p-4">
-        <div>{children}</div>
-      </div>
+      <div className="flex-1 overflow-y-auto p-4">{children}</div>
     </div>
   );
 }

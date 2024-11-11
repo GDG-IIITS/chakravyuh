@@ -16,7 +16,10 @@ type Challenge = {
   tags?: string[];
   no?: number;
   summary?: string;
-  creator: string;
+  creator: {
+    _id: string;
+    fullName: string;
+  };
   maxScore?: number;
   submissionVerificationMode: string;
   flag?: string;
@@ -28,7 +31,10 @@ type Challenge = {
 
 type ChallengeReturned = {
   _id: string;
-  creator: string;
+  creator: {
+    _id: string;
+    fullName: string;
+  };
   no: number;
   title: string;
   summary: string;
@@ -164,6 +170,7 @@ export const ChallengesProvider = ({ children }: { children: ReactNode }) => {
       );
 
       setChallenges([...challenges, response.data]);
+      closeAddModal();
     } catch (error) {
       console.error("Error adding challenge:", error);
       throw error;

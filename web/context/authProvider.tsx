@@ -2,7 +2,6 @@
 import { createContext, useState, ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
-import { set } from "date-fns";
 
 interface AuthContextType {
   user: { id: string; email: string; fullName: string; role: string } | null;
@@ -14,6 +13,7 @@ interface AuthContextType {
   ) => Promise<AxiosResponse<any>>;
   logout: () => void;
   isAuthenticated: boolean;
+  setIsAuthenticated: (status: boolean) => void;
 }
 
 const defaultContext: AuthContextType = {
@@ -22,6 +22,7 @@ const defaultContext: AuthContextType = {
   signup: async () => Promise.resolve({} as AxiosResponse<any>),
   logout: () => {},
   isAuthenticated: false,
+  setIsAuthenticated: () => {},
 };
 
 export const AuthContext = createContext<AuthContextType>(defaultContext);
@@ -93,6 +94,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           email,
           password,
           fullName,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
         }
       );
 
@@ -122,7 +130,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, login, signup, logout, isAuthenticated }}
+      value={{
+        user,
+        login,
+        signup,
+        logout,
+        isAuthenticated,
+        setIsAuthenticated,
+      }}
     >
       {children}
     </AuthContext.Provider>
