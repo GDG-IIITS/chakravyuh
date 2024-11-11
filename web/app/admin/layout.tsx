@@ -5,6 +5,7 @@ import { AuthContext } from "@/context/authProvider";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { AppSidebar } from "@/components/sidebar";
+import { UnauthorizedPage } from "@/components/unauthorized-page";
 
 export default function AdminLayout({
   children,
@@ -44,7 +45,7 @@ export default function AdminLayout({
 
   // If the authenticated user is not an admin, block access
   if (user?.role == "user") {
-    return <div>Unauthorized! You are a user.</div>;
+    return <UnauthorizedPage />;
   }
 
   return (
