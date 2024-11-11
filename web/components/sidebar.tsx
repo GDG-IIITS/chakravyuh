@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Trophy, Users2, Github, LogOut } from "lucide-react";
+import { Users, Trophy, Users2, Tally5, Github, LogOut } from "lucide-react";
 
 import {
   Sidebar,
@@ -22,6 +22,7 @@ const sidebarItems = [
   { name: "Users", icon: Users, href: "/admin/users" },
   { name: "Challenges", icon: Trophy, href: "/admin/challenges" },
   { name: "Teams", icon: Users2, href: "/admin/teams" },
+  { name: "Scores", icon: Tally5, href: "/admin/scores" },
 ];
 
 export function AppSidebar() {
