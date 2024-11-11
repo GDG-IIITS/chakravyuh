@@ -41,7 +41,7 @@ export function WelcomePage({ user }) {
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-2">Chakrvyuh [admin]</h1>
       <p className="text-lg text-muted-foreground mb-6">
-        {greeting}, {user.fullName}... Welcome to the dashboard!
+        {greeting}, {user?.fullName}... Welcome to the dashboard!
       </p>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
