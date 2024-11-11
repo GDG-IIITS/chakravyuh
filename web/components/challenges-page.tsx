@@ -1,4 +1,6 @@
 "use client";
+import { useContext } from "react";
+import { AuthContext } from "@/context/authProvider";
 import { useChallengesContext } from "@/context/challengesContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +32,7 @@ import { Search, MoreVertical, Edit, Trash2, Plus, Copy } from "lucide-react";
 import ChallengeEditor from "./challenge-editor";
 
 export function ChallengesPage() {
+  const { user } = useContext(AuthContext);
   const {
     challenges,
     searchTerm,
@@ -67,6 +70,10 @@ export function ChallengesPage() {
     };
   }
 
+  const canEditChallenge = (challenge: any) => {
+    return challenge.creator._id === user.id || user.role === "superuser";
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
@@ -81,7 +88,7 @@ export function ChallengesPage() {
         </div>
         <Button
           onClick={() => {
-            setSelectedChallenge(null); // Reset selectedChallenge for new challenge creation
+            setSelectedChallenge(null);
             openAddModal();
           }}
         >
@@ -126,23 +133,27 @@ export function ChallengesPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedChallenge(mapToChallengeType(challenge));
-                        openAddModal();
-                      }}
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        openDeleteModal(mapToChallengeType(challenge))
-                      }
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
+                    {canEditChallenge(challenge) && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedChallenge(mapToChallengeType(challenge));
+                            openAddModal();
+                          }}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            openDeleteModal(mapToChallengeType(challenge))
+                          }
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuItem
                       onClick={() => {
                         setSelectedChallenge(mapToChallengeType(challenge));
