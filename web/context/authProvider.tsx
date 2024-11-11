@@ -107,7 +107,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const data = response.data;
 
       setUser(data);
-      router.push("/auth/login"); // Redirect after signup
+      router.push("/admin"); // Redirect after signup
       return response;
     } catch (error) {
       console.error("Signup failed:", error);
