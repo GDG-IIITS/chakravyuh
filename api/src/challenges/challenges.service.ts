@@ -84,9 +84,9 @@ export class ChallengesService {
     return await (await newChallenge.save()).populate('creator', 'fullName');
   }
 
-  private parseStrToMap(str: string): Map<string, string> {
+  private parseStrToMap(teamsFlags): Map<string, string> {
     // Format : teamId,flag,teamId,flag
-    const teamsFlags = str.split(',');
+
     if (teamsFlags.length % 2 !== 0) {
       throw new NotAcceptableException('Invalid flags string');
     }
@@ -101,6 +101,7 @@ export class ChallengesService {
 
   // TODO: think through all the edge cases
   async canSubmit(team: TeamDocument, challenge: ChallengeDocument) {
+    // TODO: check if team is dead
     // check if team is eligible to submit the challenge
     if (!challenge) {
       throw new NotFoundException(`Challenge with given not found`);

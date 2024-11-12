@@ -48,5 +48,5 @@ export class CreateChallengeDto {
   @ApiPropertyOptional({
     description: 'Flags for unique submission verification mode',
   })
-  flags?: string;
+  flags?: string[];
 }
