@@ -1,5 +1,15 @@
 # Chakrvyuh API
 
+## Deployment Notes
+
+Set the timezone correctly(in your env vars) because there are some date time
+related logic,
+and some endpoints take datetime from the frontend!
+
+```env
+TZ=Asia/Kolkata
+```
+
 ## Custom Verification Mode by using our API
 
 You can use the following code in your application to mark submissions by teams,
