@@ -24,6 +24,7 @@ import { Progress } from "@/components/ui/progress";
 import { Plus, Trash } from "lucide-react";
 import { useChallengesContext } from "@/context/challengesContext";
 import { Switch } from "./ui/switch";
+import { transformCSV, arrayToCSV } from "@/utils/csv";
 
 type Hint = {
   text: string;
@@ -75,9 +76,13 @@ export default function ChallengeEditor() {
         ...challenge,
 
         tags: tags.filter((tag) => tag.trim() !== ""), // Remove empty tags
+
         submissionVerificationMode: verificationMode,
         hints: hints,
       };
+      if (challenge.submissionVerificationMode == "unique") {
+        challengeData["flags"] = transformCSV(challenge.csv);
+      }
 
       if (selectedChallenge) {
         // Update existing challenge

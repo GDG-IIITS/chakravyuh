@@ -84,9 +84,9 @@ export class ChallengesService {
     return await (await newChallenge.save()).populate('creator', 'fullName');
   }
 
-  private parseStrToMap(teamsFlags): Map<string, string> {
+  private parseStrToMap(str: string): Map<string, string> {
     // Format : teamId,flag,teamId,flag
-
+    const teamsFlags = str.split(',');
     if (teamsFlags.length % 2 !== 0) {
       throw new NotAcceptableException('Invalid flags string');
     }
