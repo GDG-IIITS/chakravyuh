@@ -24,7 +24,7 @@ import { Progress } from "@/components/ui/progress";
 import { Plus, Trash } from "lucide-react";
 import { useChallengesContext } from "@/context/challengesContext";
 import { Switch } from "./ui/switch";
-import { transformCSV, arrayToCSV } from "@/utils/csv";
+import { transformCSV } from "@/utils/csv";
 
 type Hint = {
   text: string;
