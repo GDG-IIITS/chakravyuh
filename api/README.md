@@ -15,17 +15,24 @@ TZ=Asia/Kolkata
 You can use the following code in your application to mark submissions by teams,
 when you have your own submission verification logic.
 
+Make sure to set the API Key you got after creating the challenge in your
+`.env` file
+
+```shell
+CKRVH_CHALLENGE_API_KEY=ckrvh_xxxxxxxxxxxx
+```
+
 ```js
-const CKVH_API_BASE = 'https://api.chakravyuh.live';
-const CKVH_CHALLENGE_API_KEY = process.env.CKVH_CHALLENGE_API_KEY;
+const CKRVH_API_BASE = 'https://api.chakravyuh.live';
+const CKRVH_CHALLENGE_API_KEY = process.env.CKRVH_CHALLENGE_API_KEY;
 const teamId = "teamId" // get correct teamId from your application logic
-const challengeId = process.env.CKVH_CHALLENGE_ID;
-const response = await fetch(`${CKVH_API_BASE}/challenges/verify`, {
+const challengeId = process.env.CKRVH_CHALLENGE_ID;
+const response = await fetch(`${CKRVH_API_BASE}/challenges/verify`, {
   method: 'POST',
   headers: {
     'accept': 'application/json',
     'Content-Type': 'application/json',
-    'Authorization': `Ckrvh ${CKVH_CHALLENGE_API_KEY}`
+    'Authorization': `Ckrvh ${CKRVH_CHALLENGE_API_KEY}`
   },
   body: JSON.stringify({
     team: teamId,
