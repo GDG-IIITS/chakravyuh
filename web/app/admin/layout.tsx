@@ -19,7 +19,7 @@ export default function AdminLayout({
     const checkAuthentication = async () => {
       try {
         const response = await axios.get(
-          "https://api.chakravyuh.live/auth/me",
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
           { withCredentials: true }
         );
 

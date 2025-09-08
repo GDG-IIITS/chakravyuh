@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
     environment:
-      - MONGO_CON_STR=mongodb://${MONGO_UNAME}:${MONGO_PASS}@mongo:27017/chakravyuh?authSource=admin
+      - MONGO_CON_STR=mongodb+srv://abhijiiitpatil:Xtream2323@cluster0.b3t4fwq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - API_SERVER_BIND_PORT=3000

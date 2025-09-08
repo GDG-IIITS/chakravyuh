@@ -18,5 +18,5 @@ export function getYear(email: string): string {
 }
 
 export function getUg(year: string): number {
-  return 4 - (parseInt(year) - 21);
+  return 5 - (parseInt(year) - 21);
 }
